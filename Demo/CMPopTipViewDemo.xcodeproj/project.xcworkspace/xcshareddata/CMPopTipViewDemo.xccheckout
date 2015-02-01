@@ -12,20 +12,24 @@
 	<dict>
 		<key>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</key>
 		<string>https://github.com/chrismiles/CMPopTipView.git</string>
+		<key>E4C4BED18D2B38013E59E068D26BC63DB6B2BE43</key>
+		<string>https://bitbucket.org/yichizhang/cmpoptipview_swift.git</string>
 	</dict>
 	<key>IDESourceControlProjectPath</key>
 	<string>Demo/CMPopTipViewDemo.xcodeproj</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
 		<key>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</key>
+		<string>../../../../CMPopTipView</string>
+		<key>E4C4BED18D2B38013E59E068D26BC63DB6B2BE43</key>
 		<string>../../..</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
-	<string>https://github.com/chrismiles/CMPopTipView.git</string>
+	<string>https://bitbucket.org/yichizhang/cmpoptipview_swift.git</string>
 	<key>IDESourceControlProjectVersion</key>
 	<integer>111</integer>
 	<key>IDESourceControlProjectWCCIdentifier</key>
-	<string>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</string>
+	<string>E4C4BED18D2B38013E59E068D26BC63DB6B2BE43</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
 		<dict>
@@ -35,6 +39,14 @@
 			<string>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</string>
 			<key>IDESourceControlWCCName</key>
 			<string>CMPopTipView</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>E4C4BED18D2B38013E59E068D26BC63DB6B2BE43</string>
+			<key>IDESourceControlWCCName</key>
+			<string>cmpoptipview_swift</string>
 		</dict>
 	</array>
 </dict>
