@@ -84,5 +84,35 @@ extension CMPopTipView {
         
         bubbleSize = CGSize(width: textSize.width + cornerRadius * 2, height: textSize.height + cornerRadius * 2)
         
+        var superview:UIView! = containerView.superview
+        if superview.isKindOfClass(UIWindow.self) {
+            superview = containerView
+        }
+        
+        var targetRelativeOrigin = targetView.superview!.convertPoint(targetView.frame.origin, toView: superview)
+        var containerRelativeOrigin = superview.convertPoint(containerView.frame.origin, toView: superview)
+        
+        println("----")
+		println(superview)
+		println(targetView.superview!)
+		println(containerView)
+        println(targetRelativeOrigin)
+        println(containerRelativeOrigin)
+        println("====")
+
+        // Y coordinate of pointer target (within containerView)
+        var pointerY = CGFloat(0)
+        
+        if targetRelativeOrigin.y + targetView.bounds.size.height < containerRelativeOrigin.y {
+            
+            pointDirection = PointDirectionUp
+        } else if targetRelativeOrigin.y > containerRelativeOrigin.y + containerView.bounds.size.height {
+            
+            pointerY = containerView.bounds.size.height
+            pointDirection = PointDirectionDown
+        } else {
+            
+            pointDirection = preferredPointDirection
+        }
     }
 }
