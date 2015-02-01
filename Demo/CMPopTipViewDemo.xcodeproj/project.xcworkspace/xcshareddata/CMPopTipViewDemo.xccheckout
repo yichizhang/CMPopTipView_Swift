@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>CC4BCC75-975A-4FCB-B731-4F93BC3E9577</string>
+	<key>IDESourceControlProjectName</key>
+	<string>CMPopTipViewDemo</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</key>
+		<string>https://github.com/chrismiles/CMPopTipView.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>Demo/CMPopTipViewDemo.xcodeproj</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</key>
+		<string>../../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/chrismiles/CMPopTipView.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>8AE12C9650C44B6F2CFEF1FBECEC935362A6DB72</string>
+			<key>IDESourceControlWCCName</key>
+			<string>CMPopTipView</string>
+		</dict>
+	</array>
+</dict>
+</plist>
