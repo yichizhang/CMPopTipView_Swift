@@ -30,12 +30,7 @@
 
 @interface CMPopTipView ()
 {
-	CGSize					_bubbleSize;
-	CGFloat					_cornerRadius;
-	BOOL					_highlight;
-	PointDirection			_pointDirection;
-	CGFloat					_pointerSize;
-	CGPoint					_targetPoint;
+
 }
 
 @end
@@ -346,119 +341,8 @@
 }
 
 - (void)presentPointingAtView:(UIView *)targetView inView:(UIView *)containerView animated:(BOOL)animated {
-	if (!self.targetObject) {
-		self.targetObject = targetView;
-	}
-    
-    // If we want to dismiss the bubble when the user taps anywhere, we need to insert
-    // an invisible button over the background.
-    if ( self.dismissTapAnywhere ) {
-        self.dismissTarget = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.dismissTarget addTarget:self action:@selector(dismissTapAnywhereFired:) forControlEvents:UIControlEventTouchUpInside];
-        [self.dismissTarget setTitle:@"" forState:UIControlStateNormal];
-        self.dismissTarget.frame = containerView.bounds;
-        [containerView addSubview:self.dismissTarget];
-    }
 	
-	[containerView addSubview:self];
-    
-	// Size of rounded rect
-	CGFloat rectWidth;
-    
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad) {
-        // iPad
-        if (self.maxWidth) {
-            if (self.maxWidth < containerView.frame.size.width) {
-                rectWidth = self.maxWidth;
-            }
-            else {
-                rectWidth = containerView.frame.size.width - 20;
-            }
-        }
-        else {
-            rectWidth = (int)(containerView.frame.size.width/3);
-        }
-    }
-    else {
-        // iPhone
-        if (self.maxWidth) {
-            if (self.maxWidth < containerView.frame.size.width) {
-                rectWidth = self.maxWidth;
-            }
-            else {
-                rectWidth = containerView.frame.size.width - 10;
-            }
-        }
-        else {
-            rectWidth = (int)(containerView.frame.size.width*2/3);
-        }
-    }
-
-	CGSize textSize = CGSizeZero;
-    
-    if (self.message!=nil) {
-        if ([self.message respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)]) {
-            NSMutableParagraphStyle *textParagraphStyle = [[NSMutableParagraphStyle alloc] init];
-            textParagraphStyle.alignment = self.textAlignment;
-            textParagraphStyle.lineBreakMode  =NSLineBreakByWordWrapping;
-
-            textSize = [self.message boundingRectWithSize:CGSizeMake(rectWidth, 99999.0)
-                                                  options:NSStringDrawingUsesLineFragmentOrigin
-                                               attributes:@{
-                                                            NSFontAttributeName: self.textFont,
-                                                            NSParagraphStyleAttributeName: textParagraphStyle
-                                                            }
-                                                  context:nil].size;
-        }
-        else {
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-            textSize = [self.message sizeWithFont:self.textFont
-                                constrainedToSize:CGSizeMake(rectWidth, 99999.0)
-                                    lineBreakMode:NSLineBreakByWordWrapping];
-
-#pragma clang diagnostic pop
-        
-        }
-    }
-    if (self.customView != nil) {
-        textSize = self.customView.frame.size;
-    }
-    if (self.title != nil) {
-        CGSize titleSize;
-
-        if ([self.title respondsToSelector:@selector(boundingRectWithSize:options:attributes:context:)]) {
-            NSMutableParagraphStyle *titleParagraphStyle = [[NSMutableParagraphStyle alloc] init];
-            titleParagraphStyle.lineBreakMode = NSLineBreakByClipping;
-
-            titleSize = [self.title boundingRectWithSize:CGSizeMake(rectWidth, 99999.0)
-                                                 options:kNilOptions
-                                              attributes:@{
-                                                           NSFontAttributeName: self.titleFont,
-                                                           NSParagraphStyleAttributeName: titleParagraphStyle
-                                                           }
-                                                 context:nil].size;
-        }
-        else {
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-
-            titleSize = [self.title sizeWithFont:self.titleFont
-                               constrainedToSize:CGSizeMake(rectWidth, 99999.0)
-                                   lineBreakMode:NSLineBreakByClipping];
-
-#pragma clang diagnostic pop
-        
-        }
-
-        if (titleSize.width > textSize.width) textSize.width = titleSize.width;
-        textSize.height += titleSize.height;
-    }
-    
-	_bubbleSize = CGSizeMake(textSize.width + _cornerRadius*2, textSize.height + _cornerRadius*2);
+    [self t_presentPointingAtView:targetView inView:containerView animated:animated];
 	
 	UIView *superview = containerView.superview;
 	if ([superview isKindOfClass:[UIWindow class]])

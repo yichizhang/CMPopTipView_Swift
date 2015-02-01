@@ -139,6 +139,12 @@ typedef enum {
 @property (nonatomic, strong) NSTimer *autoDismissTimer;
 @property (nonatomic, strong) UIButton *dismissTarget;
 
+@property (nonatomic, assign) CGSize					bubbleSize;
+@property (nonatomic, assign) BOOL					highlight;
+@property (nonatomic, assign) PointDirection			pointDirection;
+@property (nonatomic, assign) CGPoint					targetPoint;
+
+
 /* Contents can be either a message or a UIView */
 - (id)initWithTitle:(NSString *)titleToShow message:(NSString *)messageToShow;
 - (id)initWithMessage:(NSString *)messageToShow;

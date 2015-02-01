@@ -53,13 +53,15 @@ extension CMPopTipView {
         
         var textSize = CGSizeZero
         
-        if message.isEmpty == false {
+        if let message = message {
             
-            let textParagraphStyle = NSMutableParagraphStyle()
-            textParagraphStyle.alignment = textAlignment
-            textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
-            
-            textSize = (self.message as NSString).boundingRectWithSize(CGSize(width: rectWidth, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
+            if !message.isEmpty {
+                let textParagraphStyle = NSMutableParagraphStyle()
+                textParagraphStyle.alignment = textAlignment
+                textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
+                
+                textSize = (message as NSString).boundingRectWithSize(CGSize(width: rectWidth, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
+            }
         }
         
         if let customView = customView {
@@ -70,7 +72,8 @@ extension CMPopTipView {
             let titleParagraphStyle = NSMutableParagraphStyle()
             titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
             
-            var titleSize = (self.title as NSString).boundingRectWithSize(CGSize(width: rectWidth, height: CGFloat.max), options: NSStringDrawingOptions(rawValue: 0)!, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
+            // FIXME: How to pass 'nil' options?
+            var titleSize = (title as NSString).boundingRectWithSize(CGSize(width: rectWidth, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
             
             if titleSize.width > textSize.width {
                 textSize.width = titleSize.width
@@ -78,6 +81,8 @@ extension CMPopTipView {
             
             textSize.height += titleSize.height
         }
+        
+        bubbleSize = CGSize(width: textSize.width + cornerRadius * 2, height: textSize.height + cornerRadius * 2)
         
     }
 }
