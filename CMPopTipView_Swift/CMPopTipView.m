@@ -347,19 +347,7 @@
 }
 
 - (void)presentPointingAtBarButtonItem:(UIBarButtonItem *)barButtonItem animated:(BOOL)animated {
-	UIView *targetView = (UIView *)[barButtonItem performSelector:@selector(view)];
-	UIView *targetSuperview = [targetView superview];
-	UIView *containerView = [targetSuperview superview];
-	
-	if (nil == containerView) {
-		NSLog(@"Cannot determine container view from UIBarButtonItem: %@", barButtonItem);
-		self.targetObject = nil;
-		return;
-	}
-	
-	self.targetObject = barButtonItem;
-	
-	[self presentPointingAtView:targetView inView:containerView animated:animated];
+    [self t_presentPointingAtBarButtonItem:barButtonItem animated:animated];
 }
 
 - (void)finaliseDismiss {

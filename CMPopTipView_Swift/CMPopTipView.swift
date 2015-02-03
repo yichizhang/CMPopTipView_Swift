@@ -214,4 +214,20 @@ extension CMPopTipView {
         }
         
     }
+    
+    func t_presentPointingAtBarButtonItem(barButtonItem:UIBarButtonItem, animated:Bool){
+        
+        if let targetView = barButtonItem.valueForKey("view") as? UIView {
+            let targetSuperview = targetView.superview
+            if let containerView = targetSuperview?.superview {
+                targetObject = barButtonItem
+                presentPointingAtView(targetView, inView: containerView, animated: animated)
+            } else {
+                println("Cannot determine container view from UIBarButtonItem: ", barButtonItem)
+                targetObject = nil
+                return
+            }
+        }
+        
+    }
 }
