@@ -9,6 +9,82 @@
 import Foundation
 
 extension CMPopTipView {
+    
+    func t_drawRect(rect:CGRect) {
+        
+        let bubbleRect = self.bubbleFrame()
+        
+        let c = UIGraphicsGetCurrentContext()
+        
+        CGContextSetStrokeColorWithColor(c, UIColor.blackColor().CGColor)
+        CGContextSetLineWidth(c, borderWidth)
+        
+        var bubblePath = CGPathCreateMutable()
+        
+        let bubbleX = bubbleRect.origin.x; let bubbleY = bubbleRect.origin.y;
+        let bubbleWidth = bubbleRect.size.width; let bubbleHeight = bubbleRect.size.height;
+        
+        if pointDirection == .Up {
+            CGPathMoveToPoint(bubblePath, nil, targetPoint.x + sidePadding, targetPoint.y )
+            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding + pointerSize, targetPoint.y + pointerSize )
+            
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX + bubbleWidth, bubbleY,
+                bubbleX + bubbleWidth, bubbleY + cornerRadius,
+                cornerRadius
+            )
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX + bubbleWidth, bubbleY + bubbleHeight,
+                bubbleX + bubbleWidth - cornerRadius, bubbleY + bubbleHeight,
+                cornerRadius
+            )
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX, bubbleY + bubbleHeight,
+                bubbleX, bubbleY + bubbleHeight - cornerRadius,
+                cornerRadius
+            )
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX, bubbleY,
+                bubbleX + cornerRadius, bubbleY,
+                cornerRadius
+            )
+            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding - pointerSize, targetPoint.y + pointerSize)
+        } else {
+            CGPathMoveToPoint(bubblePath, nil, targetPoint.x + sidePadding, targetPoint.y)
+            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding - pointerSize, targetPoint.y - pointerSize)
+            
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX, bubbleY + bubbleHeight,
+                bubbleX, bubbleY + bubbleHeight - cornerRadius,
+                cornerRadius
+            )
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX, bubbleY,
+                bubbleX + cornerRadius, bubbleY,
+                cornerRadius
+            )
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX + bubbleWidth, bubbleY,
+                bubbleX + bubbleWidth, bubbleY + cornerRadius,
+                cornerRadius
+            )
+            CGPathAddArcToPoint(bubblePath, nil,
+                bubbleX + bubbleWidth, bubbleY + bubbleHeight,
+                bubbleX + bubbleWidth - cornerRadius, bubbleY + bubbleHeight,
+                cornerRadius
+            )
+            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding + pointerSize, targetPoint.y - pointerSize)
+        }
+        
+        CGPathCloseSubpath(bubblePath)
+        
+        CGContextSaveGState(c)
+        CGContextAddPath(c, bubblePath)
+        CGContextClip(c)
+        
+        
+    }
+    
     func t_presentPointingAtView(targetView:UIView, inView containerView:UIView, animated:Bool){
     
         if targetObject == nil {
@@ -230,4 +306,18 @@ extension CMPopTipView {
         }
         
     }
+}
+
+extension CGRect {
+    
+    mutating func cm_offset(# dx:CGFloat){
+    
+        origin.x += dx
+    }
+    
+    mutating func cm_offset(# dy:CGFloat){
+        
+        origin.y += dy
+    }
+    
 }

@@ -143,6 +143,8 @@ typedef NS_ENUM(NSInteger, CMPopTipAnimation) {
 @property (nonatomic, assign) PointDirection			pointDirection;
 @property (nonatomic, assign) CGPoint					targetPoint;
 
+- (CGRect)bubbleFrame;
+- (CGRect)contentFrame;
 
 /* Contents can be either a message or a UIView */
 - (id)initWithTitle:(NSString *)titleToShow message:(NSString *)messageToShow;

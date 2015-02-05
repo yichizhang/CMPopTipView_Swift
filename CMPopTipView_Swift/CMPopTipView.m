@@ -72,61 +72,63 @@
 	
 	CGContextRef c = UIGraphicsGetCurrentContext(); 
     
-    CGContextSetRGBStrokeColor(c, 0.0, 0.0, 0.0, 1.0);	// black
-	CGContextSetLineWidth(c, self.borderWidth);
-    
 	CGMutablePathRef bubblePath = CGPathCreateMutable();
 	
-	if (_pointDirection == PointDirectionUp) {
-		CGPathMoveToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding, _targetPoint.y);
-		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding+_pointerSize, _targetPoint.y+_pointerSize);
-		
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y,
-							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+_cornerRadius,
-							_cornerRadius);
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+bubbleRect.size.height,
-							bubbleRect.origin.x+bubbleRect.size.width-_cornerRadius, bubbleRect.origin.y+bubbleRect.size.height,
-							_cornerRadius);
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height,
-							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height-_cornerRadius,
-							_cornerRadius);
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x, bubbleRect.origin.y,
-							bubbleRect.origin.x+_cornerRadius, bubbleRect.origin.y,
-							_cornerRadius);
-		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding-_pointerSize, _targetPoint.y+_pointerSize);
-	}
-	else {
-		CGPathMoveToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding, _targetPoint.y);
-		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding-_pointerSize, _targetPoint.y-_pointerSize);
-		
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height,
-							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height-_cornerRadius,
-							_cornerRadius);
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x, bubbleRect.origin.y,
-							bubbleRect.origin.x+_cornerRadius, bubbleRect.origin.y,
-							_cornerRadius);
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y,
-							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+_cornerRadius,
-							_cornerRadius);
-		CGPathAddArcToPoint(bubblePath, NULL,
-							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+bubbleRect.size.height,
-							bubbleRect.origin.x+bubbleRect.size.width-_cornerRadius, bubbleRect.origin.y+bubbleRect.size.height,
-							_cornerRadius);
-		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding+_pointerSize, _targetPoint.y-_pointerSize);
-	}
-    
-	CGPathCloseSubpath(bubblePath);
-    
-    CGContextSaveGState(c);
-	CGContextAddPath(c, bubblePath);
-	CGContextClip(c);
+    [self t_drawRect:rect];
+//    
+//    CGContextSetRGBStrokeColor(c, 0.0, 0.0, 0.0, 1.0);	// black
+//    CGContextSetLineWidth(c, self.borderWidth);
+//    
+//	if (_pointDirection == PointDirectionUp) {
+//		CGPathMoveToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding, _targetPoint.y);
+//		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding+_pointerSize, _targetPoint.y+_pointerSize);
+//		
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y,
+//							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+_cornerRadius,
+//							_cornerRadius);
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+bubbleRect.size.height,
+//							bubbleRect.origin.x+bubbleRect.size.width-_cornerRadius, bubbleRect.origin.y+bubbleRect.size.height,
+//							_cornerRadius);
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height,
+//							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height-_cornerRadius,
+//							_cornerRadius);
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x, bubbleRect.origin.y,
+//							bubbleRect.origin.x+_cornerRadius, bubbleRect.origin.y,
+//							_cornerRadius);
+//		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding-_pointerSize, _targetPoint.y+_pointerSize);
+//	}
+//	else {
+//		CGPathMoveToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding, _targetPoint.y);
+//		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding-_pointerSize, _targetPoint.y-_pointerSize);
+//		
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height,
+//							bubbleRect.origin.x, bubbleRect.origin.y+bubbleRect.size.height-_cornerRadius,
+//							_cornerRadius);
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x, bubbleRect.origin.y,
+//							bubbleRect.origin.x+_cornerRadius, bubbleRect.origin.y,
+//							_cornerRadius);
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y,
+//							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+_cornerRadius,
+//							_cornerRadius);
+//		CGPathAddArcToPoint(bubblePath, NULL,
+//							bubbleRect.origin.x+bubbleRect.size.width, bubbleRect.origin.y+bubbleRect.size.height,
+//							bubbleRect.origin.x+bubbleRect.size.width-_cornerRadius, bubbleRect.origin.y+bubbleRect.size.height,
+//							_cornerRadius);
+//		CGPathAddLineToPoint(bubblePath, NULL, _targetPoint.x+_sidePadding+_pointerSize, _targetPoint.y-_pointerSize);
+//	}
+//    
+//	CGPathCloseSubpath(bubblePath);
+//    
+//    CGContextSaveGState(c);
+//	CGContextAddPath(c, bubblePath);
+//	CGContextClip(c);
 
     if (self.hasGradientBackground == NO) {
         // Fill with solid color
