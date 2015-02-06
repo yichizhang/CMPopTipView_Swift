@@ -82,6 +82,55 @@ extension CMPopTipView {
         CGContextAddPath(c, bubblePath)
         CGContextClip(c)
         
+        if hasGradientBackground {
+            // Fill with solid color
+            CGContextSetFillColorWithColor(c, backgroundColor.CGColor)
+            CGContextFillRect(c, bounds)
+        } else {
+            // Draw clipped background gradient
+            let bubbleMiddle = (bubbleY + bubbleHeight * 0.5) / bounds.size.height
+            
+            let locationCount:size_t = 5
+            let locationList:[CGFloat] = [0.0, bubbleMiddle-0.03, bubbleMiddle, bubbleMiddle+0.03, 1.0]
+            
+            let colorHL:CGFloat = highlight ? 0.25 : 0.0
+            
+            var red:CGFloat = 0
+            var green:CGFloat = 0
+            var blue:CGFloat = 0
+            var alpha:CGFloat = 0
+            let numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor)
+            let components = CGColorGetComponents(backgroundColor.CGColor)
+            
+            if (numComponents == 2) {
+                red = components[0]
+                green = components[0]
+                blue = components[0]
+                alpha = components[1]
+            } else {
+                red = components[0]
+                green = components[1]
+                blue = components[2]
+                alpha = components[3]
+            }
+            
+            let colorList:[CGFloat] = [
+                //red, green, blue, alpha
+                red*1.16+colorHL, green*1.16+colorHL, blue*1.16+colorHL, alpha,
+                red*1.16+colorHL, green*1.16+colorHL, blue*1.16+colorHL, alpha,
+                red*1.08+colorHL, green*1.08+colorHL, blue*1.08+colorHL, alpha,
+                red+colorHL, green+colorHL, blue+colorHL, alpha,
+                red+colorHL, green+colorHL, blue+colorHL, alpha
+            ]
+            
+            let myColorSpace = CGColorSpaceCreateDeviceRGB()
+            let myGradient = CGGradientCreateWithColorComponents(myColorSpace, colorList, locationList, locationCount)
+            
+            let startPoint = CGPointMake(0, 0)
+            let endPoint = CGPointMake(0, bounds.maxY)
+            
+            CGContextDrawLinearGradient(c, myGradient, startPoint, endPoint, CGGradientDrawingOptions.allZeros)
+        }
         
     }
     
