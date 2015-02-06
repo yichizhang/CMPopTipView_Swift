@@ -1,14 +1,61 @@
-//
-//  CMPopTipView.swift
-//  CMPopTipViewDemo
-//
-//  Created by Yichi on 1/02/2015.
-//  Copyright (c) 2015 Chris Miles. All rights reserved.
-//
+/*
+
+
+CMPopTipView_Swift
+
+Based on the code by:
+
+Chris Miles (chrismiles)
+
+
+
+Copyright (c) 2015 Yichi Zhang
+https://github.com/yichizhang
+zhang-yi-chi@hotmail.com
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+*/
 
 import Foundation
+import QuartzCore
 
 extension CMPopTipView {
+    
+    func titleBoundingSize(#width:CGFloat) -> CGSize {
+        if let title = title {
+            let titleParagraphStyle = NSMutableParagraphStyle()
+            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
+            
+            // FIXME: How to pass 'nil' options?
+            var titleSize = (title as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
+            
+            return titleSize
+        }else {
+            return CGSizeZero
+        }
+    }
+    
+    func messageBoundingSize(#width:CGFloat) -> CGSize {
+        if let message = message {
+            
+            if !message.isEmpty {
+                let textParagraphStyle = NSMutableParagraphStyle()
+                textParagraphStyle.alignment = textAlignment
+                textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
+                
+                let textSize = (message as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
+                
+                return textSize
+            }
+        }
+        
+        return CGSizeZero
+    }
     
     func t_drawRect(rect:CGRect) {
         
@@ -132,6 +179,86 @@ extension CMPopTipView {
             CGContextDrawLinearGradient(c, myGradient, startPoint, endPoint, CGGradientDrawingOptions.allZeros)
         }
         
+        // Draw top hightlight and bottom shadow
+        if has3DStyle {
+            CGContextSaveGState(c)
+            let innerShadowPath = CGPathCreateMutable()
+            
+            // Add a rectangle larger than the bounds of bubblePath
+            CGPathAddRect(innerShadowPath, nil, CGPathGetBoundingBox(bubblePath).rectByInsetting(dx: -30, dy: -30) )
+            
+            // Add bubblePath to innerShadow
+            CGPathAddPath(innerShadowPath, nil, bubblePath)
+            CGPathCloseSubpath(innerShadowPath)
+            
+            // Draw top hightlight
+            let hightlightColor = UIColor(white: 1.0, alpha: 0.75)
+            CGContextSetFillColorWithColor(c, hightlightColor.CGColor)
+            CGContextSetShadowWithColor(c, CGSizeMake(0.0, 4.0), 4.0, hightlightColor.CGColor)
+            CGContextAddPath(c, innerShadowPath)
+            CGContextEOFillPath(c)
+            
+            // Draw bottom shadow
+            let shadowColor = UIColor(white: 0.0, alpha: 0.4)
+            CGContextSetFillColorWithColor(c, shadowColor.CGColor)
+            CGContextSetShadowWithColor(c, CGSizeMake(0.0, -4.0), 4.0, shadowColor.CGColor)
+            CGContextAddPath(c, innerShadowPath)
+            CGContextEOFillPath(c)
+        }
+        
+        CGContextRestoreGState(c)
+        
+        // Draw Border
+        if borderWidth > 0 {
+            var red:CGFloat = 0
+            var green:CGFloat = 0
+            var blue:CGFloat = 0
+            var alpha:CGFloat = 0
+            let numComponents = CGColorGetNumberOfComponents(borderColor.CGColor)
+            let components = CGColorGetComponents(borderColor.CGColor)
+            
+            if (numComponents == 2) {
+                red = components[0]
+                green = components[0]
+                blue = components[0]
+                alpha = components[1]
+            } else {
+                red = components[0]
+                green = components[1]
+                blue = components[2]
+                alpha = components[3]
+            }
+            
+            CGContextSetRGBStrokeColor(c, red, green, blue, alpha);
+            CGContextAddPath(c, bubblePath);
+            CGContextDrawPath(c, kCGPathStroke);
+        }
+        
+        // Draw title and text
+        if let title = title {
+            titleColor.set()
+            let titleFrame = contentFrame()
+            
+            let titleParagraphStyle = NSMutableParagraphStyle()
+            titleParagraphStyle.alignment = titleAlignment
+            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
+            
+            (title as NSString).drawWithRect(titleFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSForegroundColorAttributeName: titleColor, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil)
+        }
+        
+        if let message = message {
+            textColor.set()
+            var textFrame = contentFrame()
+            
+            // Move down to make room for title
+            textFrame.origin.y += titleBoundingSize(width: textFrame.size.width).height
+            
+            let textParagraphStyle = NSMutableParagraphStyle()
+            textParagraphStyle.alignment = textAlignment
+            textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
+            
+            (message as NSString).drawWithRect(textFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: textParagraphStyle], context: nil)
+        }
     }
     
     func t_presentPointingAtView(targetView:UIView, inView containerView:UIView, animated:Bool){
