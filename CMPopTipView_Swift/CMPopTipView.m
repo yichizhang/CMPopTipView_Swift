@@ -215,10 +215,10 @@
     }
 }
 
-- (PointDirection) getPointDirection
-{
-  return _pointDirection;
-}
+//- (PointDirection) getPointDirection
+//{
+//  return _pointDirection;
+//}
 
 - (id)initWithTitle:(NSString *)titleToShow message:(NSString *)messageToShow
 {

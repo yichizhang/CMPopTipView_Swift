@@ -483,17 +483,3 @@ extension CMPopTipView {
         
     }
 }
-
-extension CGRect {
-    
-    mutating func cm_offset(# dx:CGFloat){
-    
-        origin.x += dx
-    }
-    
-    mutating func cm_offset(# dy:CGFloat){
-        
-        origin.y += dy
-    }
-    
-}
