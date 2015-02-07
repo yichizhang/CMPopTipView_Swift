@@ -105,7 +105,7 @@
         //popTipView.hasShadow = NO;
 		
 		if (backgroundColor && ![backgroundColor isEqual:[NSNull null]]) {
-			popTipView.backgroundColor = backgroundColor;
+            popTipView.bubbleBackgroundColor = backgroundColor;
 		}
 		if (textColor && ![textColor isEqual:[NSNull null]]) {
 			popTipView.textColor = textColor;

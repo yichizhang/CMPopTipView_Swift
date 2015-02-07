@@ -47,6 +47,9 @@ enum CMPopTipAnimation : NSInteger {
     var disableTapToDismiss = false
     var dismissTapAnywhere = false
     
+    var borderColor = UIColor.blackColor()
+    var bubbleBackgroundColor:UIColor = UIColor(red: 62.0/255.0, green: 60.0/255.0, blue:154.0/255.0, alpha:1.0)
+    
     var title:String?
     var message:String?
     var customView:UIView?
@@ -74,18 +77,6 @@ enum CMPopTipAnimation : NSInteger {
     }
     var highlight = false
     var hasGradientBackground = true
-
-    var borderColor = UIColor.blackColor()
-    
-    var popTipViewBackgroundColor:UIColor {
-        get {
-            if let backgroundColor = backgroundColor {
-                return backgroundColor
-            } else {
-                return UIColor.clearColor()
-            }
-        }
-    }
     
     var animation:CMPopTipAnimation = .Slide
     var preferredPointDirection:CMPopTipPointDirection = .Any
@@ -133,7 +124,7 @@ enum CMPopTipAnimation : NSInteger {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        backgroundColor = UIColor(red: 62.0/255.0, green: 60.0/255.0, blue:154.0/255.0, alpha:1.0)
+        backgroundColor = UIColor.clearColor()
     }
     
     convenience init(title titleToShow:String, message messageToShow:String) {
@@ -246,7 +237,7 @@ enum CMPopTipAnimation : NSInteger {
         
         if hasGradientBackground {
             // Fill with solid color
-            CGContextSetFillColorWithColor(c, popTipViewBackgroundColor.CGColor)
+            CGContextSetFillColorWithColor(c, bubbleBackgroundColor.CGColor)
             CGContextFillRect(c, bounds)
         } else {
             // Draw clipped background gradient
@@ -261,8 +252,8 @@ enum CMPopTipAnimation : NSInteger {
             var green:CGFloat = 0
             var blue:CGFloat = 0
             var alpha:CGFloat = 0
-            let numComponents = CGColorGetNumberOfComponents(popTipViewBackgroundColor.CGColor)
-            let components = CGColorGetComponents(popTipViewBackgroundColor.CGColor)
+            let numComponents = CGColorGetNumberOfComponents(bubbleBackgroundColor.CGColor)
+            let components = CGColorGetComponents(bubbleBackgroundColor.CGColor)
             
             if (numComponents == 2) {
                 red = components[0]
