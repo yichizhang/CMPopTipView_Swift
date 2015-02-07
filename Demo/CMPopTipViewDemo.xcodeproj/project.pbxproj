@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		12616DF51A7E123100155617 /* CMPopTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 12616DF41A7E123100155617 /* CMPopTipView.m */; };
 		12616DF81A7E124100155617 /* CMPopTipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12616DF71A7E124100155617 /* CMPopTipView.swift */; };
 		12B546E21A7E37AA00CBE933 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 12B546E11A7E37AA00CBE933 /* LaunchScreen.xib */; };
 		1D60589B0D05DD56006BFB54 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 29B97316FDCFA39411CA2CEA /* main.m */; };
@@ -26,9 +25,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		12616DF31A7E123100155617 /* CMPopTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CMPopTipView.h; sourceTree = "<group>"; };
-		12616DF41A7E123100155617 /* CMPopTipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CMPopTipView.m; sourceTree = "<group>"; };
-		12616DF61A7E124000155617 /* CMPopTipViewDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CMPopTipViewDemo-Bridging-Header.h"; sourceTree = "<group>"; };
+		1204FADB1A8625AD00C5B6E6 /* CMPopTipViewDemo-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "CMPopTipViewDemo-Bridging-Header.h"; sourceTree = "<group>"; };
 		12616DF71A7E124100155617 /* CMPopTipView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CMPopTipView.swift; sourceTree = "<group>"; };
 		12B546E11A7E37AA00CBE933 /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
 		1D30AB110D05D00D00671497 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -69,10 +66,7 @@
 		12616DF21A7E123100155617 /* CMPopTipView_Swift */ = {
 			isa = PBXGroup;
 			children = (
-				12616DF31A7E123100155617 /* CMPopTipView.h */,
-				12616DF41A7E123100155617 /* CMPopTipView.m */,
 				12616DF71A7E124100155617 /* CMPopTipView.swift */,
-				12616DF61A7E124000155617 /* CMPopTipViewDemo-Bridging-Header.h */,
 			);
 			name = CMPopTipView_Swift;
 			path = ../CMPopTipView_Swift;
@@ -111,6 +105,7 @@
 			children = (
 				83FEEE5E128E4F98007C310F /* Demo1ViewController.h */,
 				83FEEE5F128E4F98007C310F /* Demo1ViewController.m */,
+				1204FADB1A8625AD00C5B6E6 /* CMPopTipViewDemo-Bridging-Header.h */,
 				83FEEE60128E4F98007C310F /* Demo1ViewController.xib */,
 				8D1107310486CEB800E47090 /* CMPopTipViewDemo-Info.plist */,
 				12B546E11A7E37AA00CBE933 /* LaunchScreen.xib */,
@@ -239,7 +234,6 @@
 				2860E32E111B888700E27156 /* AppDelegate_iPad.m in Sources */,
 				83FEEE61128E4F98007C310F /* Demo1ViewController.m in Sources */,
 				12616DF81A7E124100155617 /* CMPopTipView.swift in Sources */,
-				12616DF51A7E123100155617 /* CMPopTipView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -261,7 +255,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = CMPopTipViewDemo;
-				SWIFT_OBJC_BRIDGING_HEADER = "../CMPopTipView_Swift/CMPopTipViewDemo-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "CMPopTipViewDemo-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -279,7 +273,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = CMPopTipViewDemo;
-				SWIFT_OBJC_BRIDGING_HEADER = "../CMPopTipView_Swift/CMPopTipViewDemo-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "CMPopTipViewDemo-Bridging-Header.h";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;

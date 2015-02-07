@@ -25,12 +25,13 @@
 //
 
 #import "Demo1ViewController.h"
+#import "CMPopTipViewDemo-Swift.h"
 
 #define foo4random() (1.0 * (arc4random() % ((unsigned)RAND_MAX + 1)) / RAND_MAX)
 
 #pragma mark - Private interface
 
-@interface Demo1ViewController ()
+@interface Demo1ViewController () <CMPopTipViewDelegate>
 @property (nonatomic, strong)	NSArray			*colorSchemes;
 @property (nonatomic, strong)	NSDictionary	*contents;
 @property (nonatomic, strong)	id				currentPopTipViewTarget;
@@ -110,7 +111,7 @@
 			popTipView.textColor = textColor;
 		}
         
-        popTipView.animation = arc4random() % 2;
+        [popTipView setAnimationStyleWithInt: arc4random() % 2 == 0 ];
 		popTipView.has3DStyle = (BOOL)(arc4random() % 2);
 		
 		popTipView.dismissTapAnywhere = YES;

@@ -22,13 +22,94 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 */
 
 import Foundation
+import UIKit
 import QuartzCore
 
-extension CMPopTipView {
+@objc protocol CMPopTipViewDelegate : NSObjectProtocol {
+    func popTipViewWasDismissedByUser(popTipView:CMPopTipView)
+}
+
+enum CMPopTipPointDirection : Int {
+    case Any = 0
+    case Up
+    case Down
+}
+
+enum CMPopTipAnimation : NSInteger {
+    case Slide = 0
+    case Pop
+}
+
+@objc class CMPopTipView : UIView {
     
-    var t_bubbleFrame:CGRect {
+    weak var delegate:CMPopTipViewDelegate?
+    
+    var disableTapToDismiss = false
+    var dismissTapAnywhere = false
+    
+    var title:String?
+    var message:String?
+    var customView:UIView?
+    
+    var titleColor:UIColor = UIColor.whiteColor()
+    var titleFont:UIFont = UIFont.boldSystemFontOfSize(16)
+    var textColor:UIColor = UIColor.whiteColor()
+    var textFont:UIFont = UIFont.boldSystemFontOfSize(14)
+    
+    var titleAlignment:NSTextAlignment = .Center
+    var textAlignment:NSTextAlignment = .Center
+    
+    var has3DStyle = true
+    var hasShadow:Bool = true {
+        didSet {
+            if hasShadow {
+                layer.shadowOffset = CGSizeMake(0, 3)
+                layer.shadowRadius = 2
+                layer.shadowColor = UIColor.blackColor().CGColor
+                layer.shadowOpacity = 0.3
+            } else {
+                layer.shadowOpacity = 0
+            }
+        }
+    }
+    var highlight = false
+    var hasGradientBackground = true
+
+    var borderColor = UIColor.blackColor()
+    
+    var popTipViewBackgroundColor:UIColor {
+        get {
+            if let backgroundColor = backgroundColor {
+                return backgroundColor
+            } else {
+                return UIColor.clearColor()
+            }
+        }
+    }
+    
+    var animation:CMPopTipAnimation = .Slide
+    var preferredPointDirection:CMPopTipPointDirection = .Any
+    
+    var cornerRadius:CGFloat = 10
+    var maxWidth:CGFloat = 0
+
+    var sidePadding:CGFloat = 2
+    var topMargin:CGFloat = 2
+    var pointerSize:CGFloat = 12
+    var borderWidth:CGFloat = 1
+    
+    // Private
+    var targetObject:AnyObject? // private set
+    var autoDismissTimer:NSTimer?
+    var dismissTarget:UIButton?
+    
+    var bubbleSize:CGSize = CGSizeZero
+    var pointDirection:CMPopTipPointDirection?
+    var targetPoint:CGPoint = CGPointZero
+    
+    var bubbleFrame:CGRect {
         var bFrame:CGRect!
-        if (pointDirection == PointDirection.Up) {
+        if (pointDirection == CMPopTipPointDirection.Up) {
             bFrame = CGRectMake(sidePadding, targetPoint.y+pointerSize, bubbleSize.width, bubbleSize.height);
         } else {
             bFrame = CGRectMake(sidePadding, targetPoint.y-pointerSize-bubbleSize.height, bubbleSize.width, bubbleSize.height);
@@ -36,8 +117,8 @@ extension CMPopTipView {
         return bFrame
     }
     
-    var t_contentFrame:CGRect {
-        let bFrame = self.bubbleFrame()
+    var contentFrame:CGRect {
+        let bFrame = self.bubbleFrame
         let cFrame = CGRectMake(
             bFrame.origin.x + cornerRadius,
             bFrame.origin.y + cornerRadius,
@@ -49,15 +130,51 @@ extension CMPopTipView {
     
     // MARK: Init methods
     
-    // MARK: Drawing and layout methods
-    
-    func t_layoutSubviews() {
-        self.customView?.frame = contentFrame()
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        backgroundColor = UIColor(red: 62.0/255.0, green: 60.0/255.0, blue:154.0/255.0, alpha:1.0)
     }
     
-    func t_drawRect(rect:CGRect) {
+    convenience init(title titleToShow:String, message messageToShow:String) {
+        self.init(frame: CGRectZero)
         
-        let bubbleRect = self.bubbleFrame()
+        title = titleToShow
+        message = messageToShow
+        
+        isAccessibilityElement = true
+        accessibilityHint = messageToShow
+    }
+    
+    convenience init(message messageToShow:String) {
+        self.init(frame: CGRectZero)
+        
+        message = messageToShow
+        
+        isAccessibilityElement = true
+        accessibilityHint = messageToShow
+    }
+    
+    convenience init(customView aView:UIView) {
+        self.init(frame: CGRectZero)
+        
+        customView = aView
+        addSubview(customView!)
+    }
+
+    required init(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: Drawing and layout methods
+    
+    override func layoutSubviews() {
+        self.customView?.frame = contentFrame
+    }
+    
+    override func drawRect(rect:CGRect) {
+        
+        let bubbleRect = self.bubbleFrame
         
         let c = UIGraphicsGetCurrentContext()
         
@@ -129,7 +246,7 @@ extension CMPopTipView {
         
         if hasGradientBackground {
             // Fill with solid color
-            CGContextSetFillColorWithColor(c, backgroundColor.CGColor)
+            CGContextSetFillColorWithColor(c, popTipViewBackgroundColor.CGColor)
             CGContextFillRect(c, bounds)
         } else {
             // Draw clipped background gradient
@@ -144,8 +261,8 @@ extension CMPopTipView {
             var green:CGFloat = 0
             var blue:CGFloat = 0
             var alpha:CGFloat = 0
-            let numComponents = CGColorGetNumberOfComponents(backgroundColor.CGColor)
-            let components = CGColorGetComponents(backgroundColor.CGColor)
+            let numComponents = CGColorGetNumberOfComponents(popTipViewBackgroundColor.CGColor)
+            let components = CGColorGetComponents(popTipViewBackgroundColor.CGColor)
             
             if (numComponents == 2) {
                 red = components[0]
@@ -235,7 +352,7 @@ extension CMPopTipView {
         // Draw title and text
         if let title = title {
             titleColor.set()
-            let titleFrame = contentFrame()
+            let titleFrame = contentFrame
             
             let titleParagraphStyle = NSMutableParagraphStyle()
             titleParagraphStyle.alignment = titleAlignment
@@ -246,7 +363,7 @@ extension CMPopTipView {
         
         if let message = message {
             textColor.set()
-            var textFrame = contentFrame()
+            var textFrame = contentFrame
             
             // Move down to make room for title
             textFrame.origin.y += titleBoundingSize(width: textFrame.size.width).height
@@ -295,7 +412,7 @@ extension CMPopTipView {
     
     // MARK: Presenting methods
     
-    func t_presentPointingAtView(targetView:UIView, inView containerView:UIView, animated:Bool){
+    func presentPointingAtView(targetView:UIView, inView containerView:UIView, animated:Bool){
     
         if targetObject == nil {
             targetObject = targetView
@@ -304,11 +421,13 @@ extension CMPopTipView {
         // If we want to dismiss the bubble when the user taps anywhere, we need to insert
         // an invisible button over the background.
         if dismissTapAnywhere {
-            dismissTarget = UIButton.buttonWithType(UIButtonType.Custom) as UIButton
-            dismissTarget.addTarget(self, action:"dismissTapAnywhereFired:", forControlEvents: UIControlEvents.TouchUpInside)
-            dismissTarget.setTitle("", forState: UIControlState.Normal)
-            dismissTarget.frame = containerView.bounds
-            containerView.addSubview(dismissTarget)
+            dismissTarget = UIButton.buttonWithType(UIButtonType.Custom) as? UIButton
+            if let dismissTarget = dismissTarget {
+                dismissTarget.addTarget(self, action:"dismissTapAnywhereFired:", forControlEvents: UIControlEvents.TouchUpInside)
+                dismissTarget.setTitle("", forState: UIControlState.Normal)
+                dismissTarget.frame = containerView.bounds
+                containerView.addSubview(dismissTarget)
+            }
         }
         
         containerView.addSubview(self)
@@ -504,7 +623,7 @@ extension CMPopTipView {
         
     }
     
-    func t_presentPointingAtBarButtonItem(barButtonItem:UIBarButtonItem, animated:Bool){
+    func presentPointingAtBarButtonItem(barButtonItem:UIBarButtonItem, animated:Bool){
         
         if let targetView = barButtonItem.valueForKey("view") as? UIView {
             let targetSuperview = targetView.superview
@@ -520,9 +639,9 @@ extension CMPopTipView {
         
     }
     
-    // MARK: Dismissal
+    // MARK: Dismiss
     
-    func t_finalizeDismiss() {
+    func finalizeDismiss() {
         autoDismissTimer?.invalidate()
         autoDismissTimer = nil
         
@@ -535,11 +654,7 @@ extension CMPopTipView {
         targetObject = nil
     }
     
-    func t_dismissAnimationDidStop(animationID:String, finished:NSNumber, context:AnyObject) {
-        finalizeDismiss()
-    }
-    
-    func t_dismissAnimated(animated:Bool) {
+    func dismissAnimated(animated:Bool) {
         if animated {
             var dismissFrame = frame
             dismissFrame.origin.y += 10.0
@@ -554,4 +669,68 @@ extension CMPopTipView {
         }
     }
     
+    func dismissByUser() {
+        highlight = true
+        setNeedsDisplay()
+        dismissAnimated(true)
+        notifyDelegatePopTipViewWasDismissedByUser()
+    }
+    
+    func dismissTapAnywhereFired(button:UIButton) {
+        dismissByUser()
+    }
+    
+    func notifyDelegatePopTipViewWasDismissedByUser() {
+        // FIXME: __strong id<CMPopTipViewDelegate> delegate = self.delegate;
+        //delegate?.popTipViewWasDismissedByUser(self)
+    }
+    
+    // MARK: NSTimer
+    func autoDismissAnimatedDidFire(theTimer:NSTimer) {
+        if let animated = theTimer.userInfo?.objectForKey("animated") as? NSNumber {
+            dismissAnimated(animated.boolValue)
+            notifyDelegatePopTipViewWasDismissedByUser()
+        }
+    }
+    
+    func autoDismissAnimated(animated:Bool, atTimeInterval timeInterval:NSTimeInterval) {
+        let userInfo = ["animated" : NSNumber(bool: animated)]
+        
+        autoDismissTimer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: "autoDismissAnimatedDidFire:", userInfo: userInfo, repeats: false)
+    }
+    
+    // MARK: Animation
+    // Crashes if you write
+    // func popAnimationDidStop(animationID:String, finished:NSNumber, context:AnyObject) {
+    func popAnimationDidStop(animationID:NSString, finished:NSNumber, context:AnyObject) {
+        UIView.beginAnimations(nil, context: nil)
+        UIView.setAnimationDuration(0.1)
+        transform = CGAffineTransformIdentity
+        UIView.commitAnimations()
+    }
+    
+    // Crashes if you write
+    // func dismissAnimationDidStop(animationID:String, finished:NSNumber, context:AnyObject) {
+    func dismissAnimationDidStop(animationID:NSString, finished:NSNumber, context:AnyObject) {
+        finalizeDismiss()
+    }
+    
+    // MARK: Handle touches
+    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+        if disableTapToDismiss {
+            super.touchesBegan(touches, withEvent: event)
+            return
+        }
+        
+        dismissByUser()
+    }
+    
+    // MARK: Objective-C Compatibility
+    func setAnimationStyleWithInt(style:Int) {
+        if (style == CMPopTipAnimation.Slide.rawValue){
+            animation = .Slide
+        } else {
+            animation = .Pop
+        }
+    }
 }
