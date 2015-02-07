@@ -39,31 +39,15 @@
 @implementation CMPopTipView
 
 - (CGRect)bubbleFrame {
-	CGRect bubbleFrame;
-	if (_pointDirection == PointDirectionUp) {
-		bubbleFrame = CGRectMake(_sidePadding, _targetPoint.y+_pointerSize, _bubbleSize.width, _bubbleSize.height);
-	}
-	else {
-		bubbleFrame = CGRectMake(_sidePadding, _targetPoint.y-_pointerSize-_bubbleSize.height, _bubbleSize.width, _bubbleSize.height);
-	}
-	return bubbleFrame;
+    return self.t_bubbleFrame;
 }
 
 - (CGRect)contentFrame {
-	CGRect bubbleFrame = [self bubbleFrame];
-	CGRect contentFrame = CGRectMake(bubbleFrame.origin.x + _cornerRadius,
-									 bubbleFrame.origin.y + _cornerRadius,
-									 bubbleFrame.size.width - _cornerRadius*2,
-									 bubbleFrame.size.height - _cornerRadius*2);
-	return contentFrame;
+	return self.t_contentFrame;
 }
 
 - (void)layoutSubviews {
-	if (self.customView) {
-		
-		CGRect contentFrame = [self contentFrame];
-        [self.customView setFrame:contentFrame];
-    }
+    [self t_layoutSubviews];
 }
 
 - (void)drawRect:(__unused CGRect)rect
@@ -81,41 +65,18 @@
     [self t_presentPointingAtBarButtonItem:barButtonItem animated:animated];
 }
 
-- (void)finaliseDismiss {
-	[self.autoDismissTimer invalidate]; self.autoDismissTimer = nil;
-
-    if (self.dismissTarget) {
-        [self.dismissTarget removeFromSuperview];
-		self.dismissTarget = nil;
-    }
-	
-	[self removeFromSuperview];
-    
-	_highlight = NO;
-	self.targetObject = nil;
+- (void)finalizeDismiss {
+    [self t_finalizeDismiss];
 }
 
 - (void)dismissAnimationDidStop:(__unused NSString *)animationID finished:(__unused NSNumber *)finished context:(__unused void *)context
 {
-	[self finaliseDismiss];
+	[self finalizeDismiss];
 }
 
 - (void)dismissAnimated:(BOOL)animated {
 	
-	if (animated) {
-		CGRect frame = self.frame;
-		frame.origin.y += 10.0;
-		
-		[UIView beginAnimations:nil context:nil];
-		self.alpha = 0.0;
-		self.frame = frame;
-		[UIView setAnimationDelegate:self];
-		[UIView setAnimationDidStopSelector:@selector(dismissAnimationDidStop:finished:context:)];
-		[UIView commitAnimations];
-	}
-	else {
-		[self finaliseDismiss];
-	}
+    [self t_dismissAnimated:animated];
 }
 
 - (void)autoDismissAnimatedDidFire:(NSTimer *)theTimer {

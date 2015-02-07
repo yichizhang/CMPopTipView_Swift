@@ -26,35 +26,33 @@ import QuartzCore
 
 extension CMPopTipView {
     
-    func titleBoundingSize(#width:CGFloat) -> CGSize {
-        if let title = title {
-            let titleParagraphStyle = NSMutableParagraphStyle()
-            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
-            
-            // FIXME: How to pass 'nil' options?
-            var titleSize = (title as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
-            
-            return titleSize
-        }else {
-            return CGSizeZero
+    var t_bubbleFrame:CGRect {
+        var bFrame:CGRect!
+        if (pointDirection == PointDirection.Up) {
+            bFrame = CGRectMake(sidePadding, targetPoint.y+pointerSize, bubbleSize.width, bubbleSize.height);
+        } else {
+            bFrame = CGRectMake(sidePadding, targetPoint.y-pointerSize-bubbleSize.height, bubbleSize.width, bubbleSize.height);
         }
+        return bFrame
     }
     
-    func messageBoundingSize(#width:CGFloat) -> CGSize {
-        if let message = message {
-            
-            if !message.isEmpty {
-                let textParagraphStyle = NSMutableParagraphStyle()
-                textParagraphStyle.alignment = textAlignment
-                textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
-                
-                let textSize = (message as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
-                
-                return textSize
-            }
-        }
-        
-        return CGSizeZero
+    var t_contentFrame:CGRect {
+        let bFrame = self.bubbleFrame()
+        let cFrame = CGRectMake(
+            bFrame.origin.x + cornerRadius,
+            bFrame.origin.y + cornerRadius,
+            bFrame.size.width - cornerRadius*2,
+            bFrame.size.height - cornerRadius*2
+        )
+        return cFrame
+    }
+    
+    // MARK: Init methods
+    
+    // MARK: Drawing and layout methods
+    
+    func t_layoutSubviews() {
+        self.customView?.frame = contentFrame()
     }
     
     func t_drawRect(rect:CGRect) {
@@ -260,6 +258,42 @@ extension CMPopTipView {
             (message as NSString).drawWithRect(textFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: textParagraphStyle], context: nil)
         }
     }
+
+    // MARK: Size calculation methods
+    
+    func titleBoundingSize(#width:CGFloat) -> CGSize {
+        if let title = title {
+            let titleParagraphStyle = NSMutableParagraphStyle()
+            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
+            
+            // FIXME: How to pass 'nil' options?
+            var titleSize = (title as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
+            
+            return titleSize
+        }else {
+            return CGSizeZero
+        }
+    }
+    
+    func messageBoundingSize(#width:CGFloat) -> CGSize {
+        if let message = message {
+            
+            if !message.isEmpty {
+                let textParagraphStyle = NSMutableParagraphStyle()
+                textParagraphStyle.alignment = textAlignment
+                textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
+                
+                let textSize = (message as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
+                
+                return textSize
+            }
+        }
+        
+        return CGSizeZero
+    }
+    
+    
+    // MARK: Presenting methods
     
     func t_presentPointingAtView(targetView:UIView, inView containerView:UIView, animated:Bool){
     
@@ -424,6 +458,9 @@ extension CMPopTipView {
         )
         finalFrame = finalFrame.integerRect
         
+        println("/////")
+        println(finalFrame)
+        
         if animated{
             if animation == .Slide {
                 alpha = 0
@@ -482,4 +519,39 @@ extension CMPopTipView {
         }
         
     }
+    
+    // MARK: Dismissal
+    
+    func t_finalizeDismiss() {
+        autoDismissTimer?.invalidate()
+        autoDismissTimer = nil
+        
+        dismissTarget?.removeFromSuperview()
+        dismissTarget = nil
+        
+        removeFromSuperview()
+        
+        highlight = false
+        targetObject = nil
+    }
+    
+    func t_dismissAnimationDidStop(animationID:String, finished:NSNumber, context:AnyObject) {
+        finalizeDismiss()
+    }
+    
+    func t_dismissAnimated(animated:Bool) {
+        if animated {
+            var dismissFrame = frame
+            dismissFrame.origin.y += 10.0
+            
+            UIView.beginAnimations(nil, context: nil)
+            alpha = 0.0
+            frame = dismissFrame
+            UIView.setAnimationDelegate(self)
+            UIView.setAnimationDidStopSelector("dismissAnimationDidStop:finished:context:")
+        } else {
+            finalizeDismiss()
+        }
+    }
+    
 }

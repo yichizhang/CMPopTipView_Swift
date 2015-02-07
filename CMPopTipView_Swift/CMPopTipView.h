@@ -146,6 +146,8 @@ typedef NS_ENUM(NSInteger, CMPopTipAnimation) {
 - (CGRect)bubbleFrame;
 - (CGRect)contentFrame;
 
+- (void)finalizeDismiss;
+
 /* Contents can be either a message or a UIView */
 - (id)initWithTitle:(NSString *)titleToShow message:(NSString *)messageToShow;
 - (id)initWithMessage:(NSString *)messageToShow;
