@@ -349,7 +349,8 @@ enum CMPopTipAnimation : NSInteger {
             titleParagraphStyle.alignment = titleAlignment
             titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
             
-            (title as NSString).drawWithRect(titleFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSForegroundColorAttributeName: titleColor, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil)
+            // Swift 1.1: use (title as NSString)
+            (title as! NSString).drawWithRect(titleFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSForegroundColorAttributeName: titleColor, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil)
         }
         
         if let message = message {
@@ -363,7 +364,8 @@ enum CMPopTipAnimation : NSInteger {
             textParagraphStyle.alignment = textAlignment
             textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
             
-            (message as NSString).drawWithRect(textFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: textParagraphStyle], context: nil)
+            // Swift 1.1: use (title as NSString)
+            (message as! NSString).drawWithRect(textFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: textParagraphStyle], context: nil)
         }
     }
 
@@ -453,11 +455,7 @@ enum CMPopTipAnimation : NSInteger {
         if let message = message {
             
             if !message.isEmpty {
-                let textParagraphStyle = NSMutableParagraphStyle()
-                textParagraphStyle.alignment = textAlignment
-                textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
-                
-                textSize = (message as NSString).boundingRectWithSize(CGSize(width: rectWidth, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
+                textSize = messageBoundingSize(width: rectWidth)
             }
         }
         
@@ -466,11 +464,8 @@ enum CMPopTipAnimation : NSInteger {
         }
         
         if let title = title {
-            let titleParagraphStyle = NSMutableParagraphStyle()
-            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
             
-            // FIXME: How to pass 'nil' options?
-            var titleSize = (title as NSString).boundingRectWithSize(CGSize(width: rectWidth, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
+            var titleSize = titleBoundingSize(width: rectWidth)
             
             if titleSize.width > textSize.width {
                 textSize.width = titleSize.width
@@ -560,6 +555,8 @@ enum CMPopTipAnimation : NSInteger {
             targetPoint = CGPoint(x: x_p-x_b, y: fullHeight-2.0);
         }
         
+        
+        
         var finalFrame = CGRect(
             x: x_b - sidePadding,
             y: y_b,
@@ -576,6 +573,10 @@ enum CMPopTipAnimation : NSInteger {
                 alpha = 0
                 var startFrame = finalFrame
                 startFrame.origin.y += 10
+                
+                println("Start Frame")
+                println(startFrame)
+                
                 frame = startFrame
             } else if animation == .Pop {
                 frame = finalFrame
@@ -707,7 +708,8 @@ enum CMPopTipAnimation : NSInteger {
     }
     
     // MARK: Handle touches
-    override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {
+    // Swift 1.1: use "override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {"
+    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
         if disableTapToDismiss {
             super.touchesBegan(touches, withEvent: event)
             return
