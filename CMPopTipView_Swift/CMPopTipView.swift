@@ -177,56 +177,36 @@ import QuartzCore
         let bubbleX = bubbleRect.origin.x; let bubbleY = bubbleRect.origin.y;
         let bubbleWidth = bubbleRect.size.width; let bubbleHeight = bubbleRect.size.height;
         
+        var pointerSizePlusValue = pointerSize
+        if pointDirection == .Down {
+            // If the pointer is facing down, we need to minus pointerSize from targetPoint
+            // to work out the
+            pointerSizePlusValue = -pointerSizePlusValue
+        }
+        let targetPointA = CGPointMake(targetPoint.x + sidePadding, targetPoint.y)
+        let targetPointB = CGPointMake(targetPoint.x + sidePadding + pointerSizePlusValue, targetPoint.y + pointerSizePlusValue)
+        let targetPointC = CGPointMake(targetPoint.x + sidePadding - pointerSizePlusValue, targetPoint.y + pointerSizePlusValue)
+        
         if pointDirection == .Up {
-            CGPathMoveToPoint(bubblePath, nil, targetPoint.x + sidePadding, targetPoint.y )
-            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding + pointerSize, targetPoint.y + pointerSize )
+            CGPathMoveToPoint(bubblePath, nil, targetPointA.x, targetPointA.y)
+            CGPathAddLineToPoint(bubblePath, nil, targetPointB.x, targetPointB.y)
             
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX + bubbleWidth, bubbleY,
-                bubbleX + bubbleWidth, bubbleY + cornerRadius,
-                cornerRadius
-            )
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX + bubbleWidth, bubbleY + bubbleHeight,
-                bubbleX + bubbleWidth - cornerRadius, bubbleY + bubbleHeight,
-                cornerRadius
-            )
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX, bubbleY + bubbleHeight,
-                bubbleX, bubbleY + bubbleHeight - cornerRadius,
-                cornerRadius
-            )
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX, bubbleY,
-                bubbleX + cornerRadius, bubbleY,
-                cornerRadius
-            )
-            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding - pointerSize, targetPoint.y + pointerSize)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.maxY, cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.maxY, cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.minY, cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.minY, cornerRadius)
+            
+            CGPathAddLineToPoint(bubblePath, nil, targetPointC.x, targetPointC.y)
         } else {
-            CGPathMoveToPoint(bubblePath, nil, targetPoint.x + sidePadding, targetPoint.y)
-            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding - pointerSize, targetPoint.y - pointerSize)
+            CGPathMoveToPoint(bubblePath, nil, targetPointA.x, targetPointA.y)
+            CGPathAddLineToPoint(bubblePath, nil, targetPointB.x, targetPointB.y)
             
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX, bubbleY + bubbleHeight,
-                bubbleX, bubbleY + bubbleHeight - cornerRadius,
-                cornerRadius
-            )
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX, bubbleY,
-                bubbleX + cornerRadius, bubbleY,
-                cornerRadius
-            )
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX + bubbleWidth, bubbleY,
-                bubbleX + bubbleWidth, bubbleY + cornerRadius,
-                cornerRadius
-            )
-            CGPathAddArcToPoint(bubblePath, nil,
-                bubbleX + bubbleWidth, bubbleY + bubbleHeight,
-                bubbleX + bubbleWidth - cornerRadius, bubbleY + bubbleHeight,
-                cornerRadius
-            )
-            CGPathAddLineToPoint(bubblePath, nil, targetPoint.x + sidePadding + pointerSize, targetPoint.y - pointerSize)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.minY, cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.minY, cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.maxY, cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.maxY, cornerRadius)
+            
+            CGPathAddLineToPoint(bubblePath, nil, targetPointC.x, targetPointC.y)
         }
         
         CGPathCloseSubpath(bubblePath)
@@ -555,8 +535,6 @@ import QuartzCore
             targetPoint = CGPoint(x: x_p-x_b, y: fullHeight-2.0);
         }
         
-        
-        
         var finalFrame = CGRect(
             x: x_b - sidePadding,
             y: y_b,
@@ -564,9 +542,6 @@ import QuartzCore
             height: fullHeight
         )
         finalFrame = finalFrame.integerRect
-        
-        println("/////")
-        println(finalFrame)
         
         if animated{
             if animation == .Slide {
@@ -593,6 +568,9 @@ import QuartzCore
                 
                 // start a little smaller
                 self.frame = finalFrame
+                
+                setNeedsDisplay()
+                
                 self.layer.anchorPoint = CGPointMake(0.5, 0.5)
                 
                 transform = CGAffineTransformMakeScale(0.75, 0.75)
