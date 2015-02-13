@@ -180,42 +180,44 @@ import QuartzCore
         var pointerSizePlusValue = pointerSize
         if pointDirection == .Down {
             // If the pointer is facing down, we need to minus pointerSize from targetPoint
-            // to work out the
+            // to work out the coordinates of the pointer triangle
             pointerSizePlusValue = -pointerSizePlusValue
         }
         let targetPointA = CGPointMake(targetPoint.x + sidePadding, targetPoint.y)
         let targetPointB = CGPointMake(targetPoint.x + sidePadding + pointerSizePlusValue, targetPoint.y + pointerSizePlusValue)
         let targetPointC = CGPointMake(targetPoint.x + sidePadding - pointerSizePlusValue, targetPoint.y + pointerSizePlusValue)
         
-        if pointDirection == .Up {
-            CGPathMoveToPoint(bubblePath, nil, targetPointA.x, targetPointA.y)
-            CGPathAddLineToPoint(bubblePath, nil, targetPointB.x, targetPointB.y)
-            
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.maxY, cornerRadius)
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.maxY, cornerRadius)
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.minY, cornerRadius)
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.minY, cornerRadius)
-            
-            CGPathAddLineToPoint(bubblePath, nil, targetPointC.x, targetPointC.y)
-        } else {
-            CGPathMoveToPoint(bubblePath, nil, targetPointA.x, targetPointA.y)
-            CGPathAddLineToPoint(bubblePath, nil, targetPointB.x, targetPointB.y)
-            
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.minY, cornerRadius)
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.minY, cornerRadius)
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.maxY, cornerRadius)
-            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.maxY, cornerRadius)
-            
-            CGPathAddLineToPoint(bubblePath, nil, targetPointC.x, targetPointC.y)
+        // These two closures are used whening drawing the bubble rect
+        let drawBubbleRectLeftHandSide = { () -> () in
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.minY, self.cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.minX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.minY, self.cornerRadius)
+        }
+        let drawBubbleRectRightHandSide = { () -> () in
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.minY, bubbleRect.maxX, bubbleRect.maxY, self.cornerRadius)
+            CGPathAddArcToPoint(bubblePath, nil, bubbleRect.maxX, bubbleRect.maxY, bubbleRect.minX, bubbleRect.maxY, self.cornerRadius)
         }
         
+        // Bubble
+        CGPathMoveToPoint(bubblePath, nil, targetPointA.x, targetPointA.y)
+        CGPathAddLineToPoint(bubblePath, nil, targetPointB.x, targetPointB.y)
+        
+        // Drawing in clockwise direction
+        if pointDirection == .Up {
+            drawBubbleRectRightHandSide()
+            drawBubbleRectLeftHandSide()
+        } else {
+            drawBubbleRectLeftHandSide()
+            drawBubbleRectRightHandSide()
+        }
+        CGPathAddLineToPoint(bubblePath, nil, targetPointC.x, targetPointC.y)
+            
         CGPathCloseSubpath(bubblePath)
         
         CGContextSaveGState(c)
         CGContextAddPath(c, bubblePath)
         CGContextClip(c)
         
-        if hasGradientBackground {
+        if hasGradientBackground == false {
             // Fill with solid color
             CGContextSetFillColorWithColor(c, bubbleBackgroundColor.CGColor)
             CGContextFillRect(c, bounds)
