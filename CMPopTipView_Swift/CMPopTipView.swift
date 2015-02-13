@@ -593,30 +593,25 @@ import QuartzCore
                 
                 // start a little smaller
                 self.frame = finalFrame
-                var finalCenter = self.center
+                self.layer.anchorPoint = CGPointMake(0.5, 0.5)
                 
                 transform = CGAffineTransformMakeScale(0.75, 0.75)
-                self.center = finalCenter
                 
                 setNeedsDisplay()
                 
                 // animate to a bigger size
                 UIView.animateWithDuration(0.15, animations: { () -> Void in
                     
-                    //self.frame = finalFrame
                     self.transform = CGAffineTransformMakeScale(1.1, 1.1)
-                    self.center = finalCenter
-                    //self.frame = finalFrame
                     self.alpha = 1.0
                     
                     }) { (completed:Bool) -> Void in
                         
                         UIView.animateWithDuration(0.1, animations: { () -> Void in
-                            //self.frame = finalFrame
+                            
                             self.transform = CGAffineTransformIdentity
-                            self.center = finalCenter
-                            //self.frame = finalFrame
-                        }, completion: { (completed:Bool) -> Void in
+                            
+                            }, completion: { (completed:Bool) -> Void in
                             
                         })
                         
