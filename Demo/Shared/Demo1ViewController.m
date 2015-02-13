@@ -31,14 +31,20 @@
 
 #pragma mark - Private interface
 
+typedef NS_ENUM(NSInteger, DemoAnimationStyleSegment) {
+    DemoAnimationStyleSegmentRandom = 0,
+    DemoAnimationStyleSegmentSlide,
+    DemoAnimationStyleSegmentPop
+};
+
 @interface Demo1ViewController () <CMPopTipViewDelegate>
+@property (weak, nonatomic) IBOutlet UISegmentedControl *animationStyleSegControl;
 @property (nonatomic, strong)	NSArray			*colorSchemes;
 @property (nonatomic, strong)	NSDictionary	*contents;
 @property (nonatomic, strong)	id				currentPopTipViewTarget;
 @property (nonatomic, strong)	NSDictionary	*titles;
 @property (nonatomic, strong)	NSMutableArray	*visiblePopTipViews;
 @end
-
 
 #pragma mark - Implementation
 
@@ -111,7 +117,19 @@
 			popTipView.textColor = textColor;
 		}
         
-        [popTipView setAnimationStyleWithInt: arc4random() % 2 == 0 ];
+        switch (self.animationStyleSegControl.selectedSegmentIndex) {
+            case DemoAnimationStyleSegmentRandom:
+            default:
+                popTipView.animation = arc4random() % 2;
+                break;
+            case DemoAnimationStyleSegmentPop:
+                popTipView.animation = CMPopTipAnimationPop;
+                break;
+            case DemoAnimationStyleSegmentSlide:
+                popTipView.animation = CMPopTipAnimationSlide;
+                break;
+        }
+        
 		popTipView.has3DStyle = (BOOL)(arc4random() % 2);
 		
 		popTipView.dismissTapAnywhere = YES;

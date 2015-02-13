@@ -29,13 +29,13 @@ import QuartzCore
     func popTipViewWasDismissedByUser(popTipView:CMPopTipView)
 }
 
-enum CMPopTipPointDirection : Int {
+@objc enum CMPopTipPointDirection : Int {
     case Any = 0
     case Up
     case Down
 }
 
-enum CMPopTipAnimation : NSInteger {
+@objc enum CMPopTipAnimation : NSInteger {
     case Slide = 0
     case Pop
 }
@@ -589,23 +589,33 @@ enum CMPopTipAnimation : NSInteger {
                 
             } else if animation == .Pop {
                 
-                self.frame = finalFrame
                 self.alpha = 0.5
                 
                 // start a little smaller
+                self.frame = finalFrame
+                var finalCenter = self.center
+                
                 transform = CGAffineTransformMakeScale(0.75, 0.75)
+                self.center = finalCenter
+                
+                setNeedsDisplay()
                 
                 // animate to a bigger size
                 UIView.animateWithDuration(0.15, animations: { () -> Void in
                     
-                    self.frame = finalFrame
+                    //self.frame = finalFrame
                     self.transform = CGAffineTransformMakeScale(1.1, 1.1)
+                    self.center = finalCenter
+                    //self.frame = finalFrame
                     self.alpha = 1.0
                     
                     }) { (completed:Bool) -> Void in
                         
                         UIView.animateWithDuration(0.1, animations: { () -> Void in
+                            //self.frame = finalFrame
                             self.transform = CGAffineTransformIdentity
+                            self.center = finalCenter
+                            //self.frame = finalFrame
                         }, completion: { (completed:Bool) -> Void in
                             
                         })
@@ -613,6 +623,10 @@ enum CMPopTipAnimation : NSInteger {
                 }
                 
             }
+        } else {
+            
+            self.frame = finalFrame
+            self.setNeedsDisplay()
         }
         
     }
@@ -711,6 +725,7 @@ enum CMPopTipAnimation : NSInteger {
     }
     
     // MARK: Objective-C Compatibility
+    // FIXME: This is not necessary in Swift 1.2
     func setAnimationStyleWithInt(style:Int) {
         if (style == CMPopTipAnimation.Slide.rawValue){
             animation = .Slide
