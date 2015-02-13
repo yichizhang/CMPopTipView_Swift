@@ -570,47 +570,49 @@ enum CMPopTipAnimation : NSInteger {
         
         if animated{
             if animation == .Slide {
-                alpha = 0
+                
                 var startFrame = finalFrame
                 startFrame.origin.y += 10
+                self.frame = startFrame
+                self.alpha = 0
                 
-                println("Start Frame")
-                println(startFrame)
+                setNeedsDisplay()
                 
-                frame = startFrame
+                UIView.animateWithDuration(0.15, animations: { () -> Void in
+                    
+                    self.alpha = 1.0
+                    self.frame = finalFrame
+                    
+                    }) { (completed:Bool) -> Void in
+                        
+                }
+                
             } else if animation == .Pop {
-                frame = finalFrame
-                alpha = 0.5
+                
+                self.frame = finalFrame
+                self.alpha = 0.5
                 
                 // start a little smaller
                 transform = CGAffineTransformMakeScale(0.75, 0.75)
                 
                 // animate to a bigger size
-                UIView.beginAnimations(nil, context: nil)
-                UIView.setAnimationDelegate(self)
-                UIView.setAnimationDidStopSelector("popAnimationDidStop:finished:context:")
-                UIView.setAnimationDuration(0.15)
+                UIView.animateWithDuration(0.15, animations: { () -> Void in
+                    
+                    self.frame = finalFrame
+                    self.transform = CGAffineTransformMakeScale(1.1, 1.1)
+                    self.alpha = 1.0
+                    
+                    }) { (completed:Bool) -> Void in
+                        
+                        UIView.animateWithDuration(0.1, animations: { () -> Void in
+                            self.transform = CGAffineTransformIdentity
+                        }, completion: { (completed:Bool) -> Void in
+                            
+                        })
+                        
+                }
                 
-                transform = CGAffineTransformMakeScale(1.1, 1.1)
-                alpha = 1.0
-                
-                UIView.commitAnimations()
             }
-            
-            setNeedsDisplay()
-            
-            if animation == .Slide {
-                UIView.beginAnimations(nil, context: nil)
-                
-                alpha = 1.0
-                frame = finalFrame
-                
-                UIView.commitAnimations()
-            }
-        } else {
-            
-            setNeedsDisplay()
-            frame = finalFrame
         }
         
     }
@@ -689,16 +691,6 @@ enum CMPopTipAnimation : NSInteger {
         let userInfo = ["animated" : NSNumber(bool: animated)]
         
         autoDismissTimer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: "autoDismissAnimatedDidFire:", userInfo: userInfo, repeats: false)
-    }
-    
-    // MARK: Animation
-    // Crashes if you write
-    // func popAnimationDidStop(animationID:String, finished:NSNumber, context:AnyObject) {
-    func popAnimationDidStop(animationID:NSString, finished:NSNumber, context:AnyObject) {
-        UIView.beginAnimations(nil, context: nil)
-        UIView.setAnimationDuration(0.1)
-        transform = CGAffineTransformIdentity
-        UIView.commitAnimations()
     }
     
     // Crashes if you write
