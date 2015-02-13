@@ -135,13 +135,14 @@ typedef NS_ENUM(NSInteger, DemoAnimationStyleSegment) {
 		popTipView.dismissTapAnywhere = YES;
         [popTipView autoDismissAnimated:YES atTimeInterval:3.0];
 
+        BOOL shouldAnimate = YES;
 		if ([sender isKindOfClass:[UIButton class]]) {
 			UIButton *button = (UIButton *)sender;
-			[popTipView presentPointingAtView:button inView:self.view animated:YES];
+			[popTipView presentPointingAtView:button inView:self.view animated:shouldAnimate];
 		}
 		else {
 			UIBarButtonItem *barButtonItem = (UIBarButtonItem *)sender;
-			[popTipView presentPointingAtBarButtonItem:barButtonItem animated:YES];
+			[popTipView presentPointingAtBarButtonItem:barButtonItem animated:shouldAnimate];
 		}
 		
 		[self.visiblePopTipViews addObject:popTipView];

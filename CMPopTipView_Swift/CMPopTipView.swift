@@ -217,7 +217,7 @@ import QuartzCore
         CGContextAddPath(c, bubblePath)
         CGContextClip(c)
         
-        if hasGradientBackground == false {
+        if hasGradientBackground == false{
             // Fill with solid color
             CGContextSetFillColorWithColor(c, bubbleBackgroundColor.CGColor)
             CGContextFillRect(c, bounds)
@@ -465,15 +465,6 @@ import QuartzCore
         
         var targetRelativeOrigin = targetView.superview!.convertPoint(targetView.frame.origin, toView: superview)
         var containerRelativeOrigin = superview.convertPoint(containerView.frame.origin, toView: superview)
-        
-        // FIXME: Debug println
-        println("----")
-		println(superview)
-		println(targetView.superview!)
-		println(containerView)
-        println(targetRelativeOrigin)
-        println(containerRelativeOrigin)
-        println("====")
 
         // Y coordinate of pointer target (within containerView)
         var pointerY = CGFloat(0)
@@ -545,7 +536,10 @@ import QuartzCore
         )
         finalFrame = finalFrame.integerRect
         
-        if animated{
+        
+        self.transform = CGAffineTransformIdentity
+        
+        if animated {
             if animation == .Slide {
                 
                 var startFrame = finalFrame
@@ -566,20 +560,14 @@ import QuartzCore
                 
             } else if animation == .Pop {
                 
-                self.alpha = 0.5
-                
-                // start a little smaller
+                // Start a little smaller
                 self.frame = finalFrame
-                
-                setNeedsDisplay()
-                
+                self.alpha = 0.5
                 self.layer.anchorPoint = CGPointMake(0.5, 0.5)
-                
                 transform = CGAffineTransformMakeScale(0.75, 0.75)
-                
                 setNeedsDisplay()
                 
-                // animate to a bigger size
+                // Animate to a bigger size
                 UIView.animateWithDuration(0.15, animations: { () -> Void in
                     
                     self.transform = CGAffineTransformMakeScale(1.1, 1.1)
@@ -642,11 +630,16 @@ import QuartzCore
             var dismissFrame = frame
             dismissFrame.origin.y += 10.0
             
-            UIView.beginAnimations(nil, context: nil)
-            alpha = 0.0
-            frame = dismissFrame
-            UIView.setAnimationDelegate(self)
-            UIView.setAnimationDidStopSelector("dismissAnimationDidStop:finished:context:")
+            UIView.animateWithDuration(0.15, animations: { () -> Void in
+                
+                self.alpha = 0.0
+                self.frame = dismissFrame
+                
+                }, completion: { (completed:Bool) -> Void in
+                    
+                self.finalizeDismiss()
+            })
+            
         } else {
             finalizeDismiss()
         }
@@ -664,28 +657,23 @@ import QuartzCore
     }
     
     func notifyDelegatePopTipViewWasDismissedByUser() {
-        // FIXME: __strong id<CMPopTipViewDelegate> delegate = self.delegate;
-        //delegate?.popTipViewWasDismissedByUser(self)
+        delegate?.popTipViewWasDismissedByUser(self)
     }
     
     // MARK: NSTimer
     func autoDismissAnimatedDidFire(theTimer:NSTimer) {
+        var shouldAnimate = false
         if let animated = theTimer.userInfo?.objectForKey("animated") as? NSNumber {
-            dismissAnimated(animated.boolValue)
-            notifyDelegatePopTipViewWasDismissedByUser()
+            shouldAnimate = animated.boolValue
         }
+        dismissAnimated(shouldAnimate)
+        notifyDelegatePopTipViewWasDismissedByUser()
     }
     
     func autoDismissAnimated(animated:Bool, atTimeInterval timeInterval:NSTimeInterval) {
         let userInfo = ["animated" : NSNumber(bool: animated)]
         
         autoDismissTimer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: "autoDismissAnimatedDidFire:", userInfo: userInfo, repeats: false)
-    }
-    
-    // Crashes if you write
-    // func dismissAnimationDidStop(animationID:String, finished:NSNumber, context:AnyObject) {
-    func dismissAnimationDidStop(animationID:NSString, finished:NSNumber, context:AnyObject) {
-        finalizeDismiss()
     }
     
     // MARK: Handle touches
