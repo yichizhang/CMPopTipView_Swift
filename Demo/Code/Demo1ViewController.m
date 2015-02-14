@@ -60,7 +60,7 @@ typedef NS_ENUM(NSInteger, DemoAnimationStyleSegment) {
 }
 
 - (IBAction)buttonAction:(id)sender
-{
+{    
 	[self dismissAllPopTipViews];
 	
 	if (sender == self.currentPopTipViewTarget) {
@@ -217,6 +217,11 @@ typedef NS_ENUM(NSInteger, DemoAnimationStyleSegment) {
 						 [NSArray arrayWithObjects:[UIColor orangeColor], [UIColor blueColor], nil],
 						 [NSArray arrayWithObjects:[UIColor colorWithRed:220.0/255.0 green:0.0/255.0 blue:0.0/255.0 alpha:1.0], [NSNull null], nil],
 						 nil];
+    
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Left" style:UIBarButtonItemStylePlain target:self action:@selector(buttonAction:)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Right" style:UIBarButtonItemStylePlain target:self action:@selector(buttonAction:)];
+    
+    self.navigationItem.title = @"CMPopTipView Demo";
 }
 
 @end
