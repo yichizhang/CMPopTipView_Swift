@@ -71,8 +71,16 @@ class DemoTableViewController: UITableViewController, CMPopTipViewDelegate {
             
             currentPopTipView = CMPopTipView(title: "Message", message: "You just tapped on \( self.textForRowAt(indexPath: indexPath) ). A CMPopTipView will automatically position itself within the container view, and can point to any UIView subclass.")
             
-            currentPopTipView!.autoDismissAnimated(true, atTimeInterval: 3.00)
-            currentPopTipView!.presentPointingAtView(cell, inView: tableView, animated: true)
+            
+            if let currentPopTipView = currentPopTipView {
+                currentPopTipView.titleColor = UIColor.orangeColor()
+                currentPopTipView.textColor = UIColor.redColor()
+                currentPopTipView.titleFont = UIFont.italicSystemFontOfSize(18)
+                currentPopTipView.textFont = UIFont.boldSystemFontOfSize(20)
+                
+                currentPopTipView.autoDismissAnimated(true, atTimeInterval: 3.00)
+                currentPopTipView.presentPointingAtView(cell, inView: tableView, animated: true)
+            }
         }
     }
     

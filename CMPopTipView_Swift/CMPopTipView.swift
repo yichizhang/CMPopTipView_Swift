@@ -56,11 +56,46 @@ import QuartzCore
     
     var titleColor:UIColor = UIColor.whiteColor()
     var titleFont:UIFont = UIFont.boldSystemFontOfSize(16)
+    var titleAlignment:NSTextAlignment = .Center
+    
     var textColor:UIColor = UIColor.whiteColor()
     var textFont:UIFont = UIFont.boldSystemFontOfSize(14)
-    
-    var titleAlignment:NSTextAlignment = .Center
     var textAlignment:NSTextAlignment = .Center
+    
+    lazy var titleAndMessageAttributedString:NSAttributedString = {
+        
+        var newString = ""
+        var titleRange = NSMakeRange(0, 0)
+        var messageRange = NSMakeRange(0, 0)
+        if let title = self.title {
+            newString = newString + title + "\n"
+            titleRange = NSMakeRange(0, count(newString))//NSRangeFromString(title)
+        }
+        if let message = self.message {
+            newString = newString + message
+            messageRange = NSMakeRange(titleRange.length, count(message))
+        }
+        
+        let attributedString = NSMutableAttributedString(string: newString)
+        
+        let titleParagraphStyle = NSMutableParagraphStyle()
+        titleParagraphStyle.alignment = self.titleAlignment
+        titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
+        
+        let textParagraphStyle = NSMutableParagraphStyle()
+        textParagraphStyle.alignment = self.textAlignment
+        textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
+        
+        attributedString.addAttribute(NSFontAttributeName, value: self.titleFont, range: titleRange)
+        attributedString.addAttribute(NSForegroundColorAttributeName, value: self.titleColor, range: titleRange)
+        attributedString.addAttribute(NSParagraphStyleAttributeName, value: titleParagraphStyle, range: titleRange)
+        
+        attributedString.addAttribute(NSFontAttributeName, value: self.textFont, range: messageRange)
+        attributedString.addAttribute(NSForegroundColorAttributeName, value: self.textColor, range: messageRange)
+        attributedString.addAttribute(NSParagraphStyleAttributeName, value: textParagraphStyle, range: messageRange)
+        
+        return attributedString
+    }()
     
     var has3DStyle = true
     var hasShadow:Bool = true {
@@ -89,16 +124,17 @@ import QuartzCore
     var pointerSize:CGFloat = 12
     var borderWidth:CGFloat = 1
     
-    // Private
-    var targetObject:AnyObject? // private set
-    var autoDismissTimer:NSTimer?
-    var dismissTarget:UIButton?
+    var targetObject:AnyObject?
     
-    var bubbleSize:CGSize = CGSizeZero
-    var pointDirection:CMPopTipPointDirection?
-    var targetPoint:CGPoint = CGPointZero
+    // MARK: Private properties
+    private var autoDismissTimer:NSTimer?
+    private var dismissTarget:UIButton?
     
-    var bubbleFrame:CGRect {
+    private var bubbleSize:CGSize = CGSizeZero
+    private var pointDirection:CMPopTipPointDirection?
+    private var targetPoint:CGPoint = CGPointZero
+    
+    private var bubbleFrame:CGRect {
         var bFrame:CGRect!
         if (pointDirection == CMPopTipPointDirection.Up) {
             bFrame = CGRectMake(sidePadding, targetPoint.y+pointerSize, bubbleSize.width, bubbleSize.height);
@@ -108,7 +144,7 @@ import QuartzCore
         return bFrame
     }
     
-    var contentFrame:CGRect {
+    private var contentFrame:CGRect {
         let bFrame = self.bubbleFrame
         let cFrame = CGRectMake(
             bFrame.origin.x + cornerRadius,
@@ -322,68 +358,13 @@ import QuartzCore
             CGContextDrawPath(c, kCGPathStroke);
         }
         
-        // Draw title and text
-        if let title = title {
-            titleColor.set()
-            let titleFrame = contentFrame
-            
-            let titleParagraphStyle = NSMutableParagraphStyle()
-            titleParagraphStyle.alignment = titleAlignment
-            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
-            
-            // Swift 1.1: use (title as NSString)
-            (title as! NSString).drawWithRect(titleFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSForegroundColorAttributeName: titleColor, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil)
-        }
-        
-        if let message = message {
-            textColor.set()
-            var textFrame = contentFrame
-            
-            // Move down to make room for title
-            textFrame.origin.y += titleBoundingSize(width: textFrame.size.width).height
-            
-            let textParagraphStyle = NSMutableParagraphStyle()
-            textParagraphStyle.alignment = textAlignment
-            textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
-            
-            // Swift 1.1: use (title as NSString)
-            (message as! NSString).drawWithRect(textFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSForegroundColorAttributeName: textColor, NSParagraphStyleAttributeName: textParagraphStyle], context: nil)
-        }
+        titleAndMessageAttributedString.drawWithRect(contentFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, context: nil)
     }
 
-    // MARK: Size calculation methods
-    
-    func titleBoundingSize(#width:CGFloat) -> CGSize {
-        if let title = title {
-            let titleParagraphStyle = NSMutableParagraphStyle()
-            titleParagraphStyle.lineBreakMode = NSLineBreakMode.ByClipping
-            
-            // FIXME: How to pass 'nil' options?
-            var titleSize = (title as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: titleFont, NSParagraphStyleAttributeName: titleParagraphStyle], context: nil).size
-            
-            return titleSize
-        }else {
-            return CGSizeZero
-        }
+    // MARK: Private - Size calculation methods
+    private func titleAndMessageBoundingSize(#width:CGFloat) -> CGSize {
+        return titleAndMessageAttributedString.boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, context: nil).size
     }
-    
-    func messageBoundingSize(#width:CGFloat) -> CGSize {
-        if let message = message {
-            
-            if !message.isEmpty {
-                let textParagraphStyle = NSMutableParagraphStyle()
-                textParagraphStyle.alignment = textAlignment
-                textParagraphStyle.lineBreakMode = NSLineBreakMode.ByWordWrapping
-                
-                let textSize = (message as NSString).boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, attributes: [NSFontAttributeName: textFont, NSParagraphStyleAttributeName: textParagraphStyle], context: nil).size
-                
-                return textSize
-            }
-        }
-        
-        return CGSizeZero
-    }
-    
     
     // MARK: Presenting methods
     
@@ -433,27 +414,10 @@ import QuartzCore
         }
         
         var textSize = CGSizeZero
-        
-        if let message = message {
-            
-            if !message.isEmpty {
-                textSize = messageBoundingSize(width: rectWidth)
-            }
-        }
-        
         if let customView = customView {
             textSize = customView.frame.size
-        }
-        
-        if let title = title {
-            
-            var titleSize = titleBoundingSize(width: rectWidth)
-            
-            if titleSize.width > textSize.width {
-                textSize.width = titleSize.width
-            }
-            
-            textSize.height += titleSize.height
+        } else {
+            textSize = titleAndMessageBoundingSize(width: rectWidth)
         }
         
         bubbleSize = CGSize(width: textSize.width + cornerRadius * 2, height: textSize.height + cornerRadius * 2)
@@ -611,20 +575,6 @@ import QuartzCore
     }
     
     // MARK: Dismiss
-    
-    func finalizeDismiss() {
-        autoDismissTimer?.invalidate()
-        autoDismissTimer = nil
-        
-        dismissTarget?.removeFromSuperview()
-        dismissTarget = nil
-        
-        removeFromSuperview()
-        
-        highlight = false
-        targetObject = nil
-    }
-    
     func dismissAnimated(animated:Bool) {
         if animated {
             var dismissFrame = frame
@@ -637,7 +587,7 @@ import QuartzCore
                 
                 }, completion: { (completed:Bool) -> Void in
                     
-                self.finalizeDismiss()
+                    self.finalizeDismiss()
             })
             
         } else {
@@ -645,22 +595,42 @@ import QuartzCore
         }
     }
     
-    func dismissByUser() {
+    func autoDismissAnimated(animated:Bool, atTimeInterval timeInterval:NSTimeInterval) {
+        let userInfo = ["animated" : NSNumber(bool: animated)]
+        
+        autoDismissTimer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: "autoDismissAnimatedDidFire:", userInfo: userInfo, repeats: false)
+    }
+    
+    // MARK: Private: Dimiss
+    private func finalizeDismiss() {
+        autoDismissTimer?.invalidate()
+        autoDismissTimer = nil
+        
+        dismissTarget?.removeFromSuperview()
+        dismissTarget = nil
+        
+        removeFromSuperview()
+        
+        highlight = false
+        targetObject = nil
+    }
+    
+    private func dismissByUser() {
         highlight = true
         setNeedsDisplay()
         dismissAnimated(true)
         notifyDelegatePopTipViewWasDismissedByUser()
     }
     
+    private func notifyDelegatePopTipViewWasDismissedByUser() {
+        delegate?.popTipViewWasDismissedByUser(self)
+    }
+    
+    // MARK: Dismiss selectors
     func dismissTapAnywhereFired(button:UIButton) {
         dismissByUser()
     }
     
-    func notifyDelegatePopTipViewWasDismissedByUser() {
-        delegate?.popTipViewWasDismissedByUser(self)
-    }
-    
-    // MARK: NSTimer
     func autoDismissAnimatedDidFire(theTimer:NSTimer) {
         var shouldAnimate = false
         if let animated = theTimer.userInfo?.objectForKey("animated") as? NSNumber {
@@ -668,12 +638,6 @@ import QuartzCore
         }
         dismissAnimated(shouldAnimate)
         notifyDelegatePopTipViewWasDismissedByUser()
-    }
-    
-    func autoDismissAnimated(animated:Bool, atTimeInterval timeInterval:NSTimeInterval) {
-        let userInfo = ["animated" : NSNumber(bool: animated)]
-        
-        autoDismissTimer = NSTimer.scheduledTimerWithTimeInterval(timeInterval, target: self, selector: "autoDismissAnimatedDidFire:", userInfo: userInfo, repeats: false)
     }
     
     // MARK: Handle touches
@@ -687,13 +651,4 @@ import QuartzCore
         dismissByUser()
     }
     
-    // MARK: Objective-C Compatibility
-    // FIXME: This is not necessary in Swift 1.2
-    func setAnimationStyleWithInt(style:Int) {
-        if (style == CMPopTipAnimation.Slide.rawValue){
-            animation = .Slide
-        } else {
-            animation = .Pop
-        }
-    }
 }
