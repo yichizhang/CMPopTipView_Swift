@@ -145,13 +145,7 @@ import QuartzCore
     }
     
     private var contentFrame:CGRect {
-        let bFrame = self.bubbleFrame
-        let cFrame = CGRectMake(
-            bFrame.origin.x + cornerRadius,
-            bFrame.origin.y + cornerRadius,
-            bFrame.size.width - cornerRadius*2,
-            bFrame.size.height - cornerRadius*2
-        )
+        let cFrame = self.bubbleFrame.rectByInsetting(dx: cornerRadius, dy: cornerRadius)
         return cFrame
     }
     
@@ -392,41 +386,39 @@ import QuartzCore
         var rectWidth = CGFloat(0)
         let containerViewWidth = containerView.bounds.size.width
 		let containerViewHeight = containerView.bounds.size.height
-        var j:CGFloat!
-        var k:CGFloat!
+        var maxWidthLimit:CGFloat = containerViewWidth - cornerRadius * 2
+        var widthProportion:CGFloat!
         
         if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
-            j = 20
-            k = 1/3
+            widthProportion = 1/3
         } else {
-            j = 10
-            k = 2/3
+            widthProportion = 2/3
         }
         
         if maxWidth > 0 {
-            if maxWidth < containerViewWidth {
-                rectWidth = maxWidth
-            } else {
-                rectWidth = containerViewWidth - j
-            }
+            // If "maxWidth" is specified, we need to check to make sure
+            // that it's valid, i.e. less than "maxWidthLimit"
+            rectWidth = min(maxWidth, maxWidthLimit)
         } else {
-            rectWidth = floor(containerViewWidth * k)
+            rectWidth = floor(containerViewWidth * widthProportion)
         }
         
-        var textSize = CGSizeZero
+        var contentSize = CGSizeZero
         if let customView = customView {
-            textSize = customView.frame.size
+            contentSize = customView.frame.size
         } else {
-            textSize = titleAndMessageBoundingSize(width: rectWidth)
+            contentSize = titleAndMessageBoundingSize(width: rectWidth)
         }
         
-        bubbleSize = CGSize(width: textSize.width + cornerRadius * 2, height: textSize.height + cornerRadius * 2)
+        bubbleSize = CGSize(width: contentSize.width + cornerRadius * 2, height: contentSize.height + cornerRadius * 2)
         
         var superview:UIView! = containerView.superview
+        assert(superview != nil, "The container view does not have a superview")
         if superview.isKindOfClass(UIWindow.self) {
             superview = containerView
         }
         
+        assert(targetView.superview != nil, "The target view does not have a superview")
         var targetRelativeOrigin = targetView.superview!.convertPoint(targetView.frame.origin, toView: superview)
         var containerRelativeOrigin = superview.convertPoint(containerView.frame.origin, toView: superview)
 
@@ -464,37 +456,32 @@ import QuartzCore
             }
         }
         
-        let p = targetView.superview!.convertPoint(targetView.center, toView: containerView)
-        var x_p = p.x
-        var x_b = x_p - round(bubbleSize.width * 0.5)
+        let targetCenterInContainer = targetView.superview!.convertPoint(targetView.center, toView: containerView)
+        var targetCenterX = targetCenterInContainer.x
+        var finalOriginX = targetCenterX - round(bubbleSize.width * 0.5)
         
-        if (x_b < sidePadding) {
-            x_b = sidePadding;
-        }
-        if (x_b + bubbleSize.width + sidePadding > containerViewWidth) {
-            x_b = containerViewWidth - bubbleSize.width - sidePadding;
-        }
-        if (x_p - pointerSize < x_b + cornerRadius) {
-            x_p = x_b + cornerRadius + pointerSize;
-        }
-        if (x_p + pointerSize > x_b + bubbleSize.width - cornerRadius) {
-            x_p = x_b + bubbleSize.width - cornerRadius - pointerSize;
-        }
+        // Making sure "finalOriginX" is within the limits
+        finalOriginX = max( finalOriginX, sidePadding )
+        finalOriginX = min( finalOriginX, containerViewWidth - bubbleSize.width - sidePadding )
+        
+        // Making sure "targetCenterX" is within the limits
+        targetCenterX = max( targetCenterX, finalOriginX + cornerRadius + pointerSize )
+        targetCenterX = min( targetCenterX, finalOriginX + bubbleSize.width - cornerRadius - pointerSize )
         
         let fullHeight = bubbleSize.height + pointerSize + 10
-        var y_b = CGFloat(0)
+        var finalOriginY = CGFloat(0)
         
         if (pointDirection == .Up) {
-            y_b = topMargin + pointerY;
-            targetPoint = CGPoint(x: x_p-x_b, y: 0);
+            finalOriginY = topMargin + pointerY;
+            targetPoint = CGPoint(x: targetCenterX-finalOriginX, y: 0);
         } else {
-            y_b = pointerY - fullHeight;
-            targetPoint = CGPoint(x: x_p-x_b, y: fullHeight-2.0);
+            finalOriginY = pointerY - fullHeight;
+            targetPoint = CGPoint(x: targetCenterX-finalOriginX, y: fullHeight-2.0);
         }
         
         var finalFrame = CGRect(
-            x: x_b - sidePadding,
-            y: y_b,
+            x: finalOriginX - sidePadding,
+            y: finalOriginY,
             width: bubbleSize.width + sidePadding * 2,
             height: fullHeight
         )
