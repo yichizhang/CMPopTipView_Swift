@@ -74,11 +74,12 @@ class DemoTableViewController: UITableViewController, CMPopTipViewDelegate {
             
             if let currentPopTipView = currentPopTipView {
                 currentPopTipView.titleColor = UIColor.orangeColor()
-                currentPopTipView.textColor = UIColor.redColor()
-                currentPopTipView.titleFont = UIFont.italicSystemFontOfSize(18)
-                currentPopTipView.textFont = UIFont.boldSystemFontOfSize(20)
+                currentPopTipView.textColor = UIColor.whiteColor()
+                currentPopTipView.titleFont = UIFont.italicSystemFontOfSize(22)
+                currentPopTipView.textFont = UIFont.boldSystemFontOfSize(18)
+                currentPopTipView.maxWidth = 100000
                 
-                currentPopTipView.autoDismissAnimated(true, atTimeInterval: 3.00)
+                //currentPopTipView.autoDismissAnimated(true, atTimeInterval: 3.00)
                 currentPopTipView.presentPointingAtView(cell, inView: tableView, animated: true)
             }
         }
