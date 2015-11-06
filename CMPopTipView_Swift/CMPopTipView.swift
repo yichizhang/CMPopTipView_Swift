@@ -69,11 +69,11 @@ import QuartzCore
         var messageRange = NSMakeRange(0, 0)
         if let title = self.title {
             newString = newString + title + "\n"
-            titleRange = NSMakeRange(0, count(newString))//NSRangeFromString(title)
+            titleRange = NSMakeRange(0, newString.characters.count)//NSRangeFromString(title)
         }
         if let message = self.message {
             newString = newString + message
-            messageRange = NSMakeRange(titleRange.length, count(message))
+            messageRange = NSMakeRange(titleRange.length, message.characters.count)
         }
         
         let attributedString = NSMutableAttributedString(string: newString)
@@ -118,7 +118,7 @@ import QuartzCore
     
     var cornerRadius:CGFloat = 10
     var maxWidth:CGFloat = 0
-
+    
     var sidePadding:CGFloat = 2
     var topMargin:CGFloat = 2
     var pointerSize:CGFloat = 12
@@ -145,7 +145,7 @@ import QuartzCore
     }
     
     private var contentFrame:CGRect {
-        let cFrame = self.bubbleFrame.rectByInsetting(dx: cornerRadius, dy: cornerRadius)
+        let cFrame = self.bubbleFrame.insetBy(dx: cornerRadius, dy: cornerRadius)
         return cFrame
     }
     
@@ -182,7 +182,7 @@ import QuartzCore
         customView = aView
         addSubview(customView!)
     }
-
+    
     required init(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
@@ -240,7 +240,7 @@ import QuartzCore
             drawBubbleRectRightHandSide()
         }
         CGPathAddLineToPoint(bubblePath, nil, targetPointC.x, targetPointC.y)
-            
+        
         CGPathCloseSubpath(bubblePath)
         
         CGContextSaveGState(c)
@@ -294,7 +294,7 @@ import QuartzCore
             let startPoint = CGPointMake(0, 0)
             let endPoint = CGPointMake(0, bounds.maxY)
             
-            CGContextDrawLinearGradient(c, myGradient, startPoint, endPoint, CGGradientDrawingOptions.allZeros)
+            CGContextDrawLinearGradient(c, myGradient, startPoint, endPoint, CGGradientDrawingOptions())
         }
         
         // Draw top hightlight and bottom shadow
@@ -303,7 +303,7 @@ import QuartzCore
             let innerShadowPath = CGPathCreateMutable()
             
             // Add a rectangle larger than the bounds of bubblePath
-            CGPathAddRect(innerShadowPath, nil, CGPathGetBoundingBox(bubblePath).rectByInsetting(dx: -30, dy: -30) )
+            CGPathAddRect(innerShadowPath, nil, CGPathGetBoundingBox(bubblePath).insetBy(dx: -30, dy: -30) )
             
             // Add bubblePath to innerShadow
             CGPathAddPath(innerShadowPath, nil, bubblePath)
@@ -349,21 +349,21 @@ import QuartzCore
             
             CGContextSetRGBStrokeColor(c, red, green, blue, alpha);
             CGContextAddPath(c, bubblePath);
-            CGContextDrawPath(c, kCGPathStroke);
+            CGContextDrawPath(c, .Stroke);
         }
         
         titleAndMessageAttributedString.drawWithRect(contentFrame, options: NSStringDrawingOptions.UsesLineFragmentOrigin, context: nil)
     }
-
+    
     // MARK: Private - Size calculation methods
-    private func titleAndMessageBoundingSize(#width:CGFloat) -> CGSize {
+    private func titleAndMessageBoundingSize(width width:CGFloat) -> CGSize {
         return titleAndMessageAttributedString.boundingRectWithSize(CGSize(width: width, height: CGFloat.max), options: NSStringDrawingOptions.UsesLineFragmentOrigin, context: nil).size
     }
     
     // MARK: Presenting methods
     
     func presentPointingAtView(targetView:UIView, inView containerView:UIView, animated:Bool){
-    
+        
         if targetObject == nil {
             targetObject = targetView
         }
@@ -371,7 +371,7 @@ import QuartzCore
         // If we want to dismiss the bubble when the user taps anywhere, we need to insert
         // an invisible button over the background.
         if dismissTapAnywhere {
-            dismissTarget = UIButton.buttonWithType(UIButtonType.Custom) as? UIButton
+            dismissTarget = UIButton(type: .Custom) as UIButton
             if let dismissTarget = dismissTarget {
                 dismissTarget.addTarget(self, action:"dismissTapAnywhereFired:", forControlEvents: UIControlEvents.TouchUpInside)
                 dismissTarget.setTitle("", forState: UIControlState.Normal)
@@ -385,8 +385,8 @@ import QuartzCore
         // Size of rounded rect
         var rectWidth = CGFloat(0)
         let containerViewWidth = containerView.bounds.size.width
-		let containerViewHeight = containerView.bounds.size.height
-        var maxWidthLimit:CGFloat = containerViewWidth - cornerRadius * 2
+        let containerViewHeight = containerView.bounds.size.height
+        let maxWidthLimit:CGFloat = containerViewWidth - cornerRadius * 2
         var widthProportion:CGFloat!
         
         if UIDevice.currentDevice().userInterfaceIdiom == .Pad {
@@ -419,9 +419,9 @@ import QuartzCore
         }
         
         assert(targetView.superview != nil, "The target view does not have a superview")
-        var targetRelativeOrigin = targetView.superview!.convertPoint(targetView.frame.origin, toView: superview)
-        var containerRelativeOrigin = superview.convertPoint(containerView.frame.origin, toView: superview)
-
+        let targetRelativeOrigin = targetView.superview!.convertPoint(targetView.frame.origin, toView: superview)
+        let containerRelativeOrigin = superview.convertPoint(containerView.frame.origin, toView: superview)
+        
         // Y coordinate of pointer target (within containerView)
         var pointerY = CGFloat(0)
         
@@ -436,8 +436,8 @@ import QuartzCore
             
             pointDirection = preferredPointDirection
             
-            var targetOriginInContainer = targetView.convertPoint(CGPointZero, toView: containerView)
-            var sizeBelow =  containerViewHeight - targetOriginInContainer.y
+            let targetOriginInContainer = targetView.convertPoint(CGPointZero, toView: containerView)
+            let sizeBelow =  containerViewHeight - targetOriginInContainer.y
             
             if pointDirection == .Any {
                 
@@ -485,7 +485,7 @@ import QuartzCore
             width: bubbleSize.width + sidePadding * 2,
             height: fullHeight
         )
-        finalFrame = finalFrame.integerRect
+        finalFrame = finalFrame.integral
         
         
         self.transform = CGAffineTransformIdentity
@@ -531,7 +531,7 @@ import QuartzCore
                             self.transform = CGAffineTransformIdentity
                             
                             }, completion: { (completed:Bool) -> Void in
-                            
+                                
                         })
                         
                 }
@@ -553,7 +553,7 @@ import QuartzCore
                 targetObject = barButtonItem
                 presentPointingAtView(targetView, inView: containerView, animated: animated)
             } else {
-                println("Cannot determine container view from UIBarButtonItem: ", barButtonItem)
+                print("Cannot determine container view from UIBarButtonItem: ", barButtonItem)
                 targetObject = nil
                 return
             }
@@ -629,9 +629,9 @@ import QuartzCore
     
     // MARK: Handle touches
     // Swift 1.1: use "override func touchesBegan(touches: NSSet, withEvent event: UIEvent) {"
-    override func touchesBegan(touches: Set<NSObject>, withEvent event: UIEvent) {
+     override func touchesBegan(touches: Set<UITouch>?, withEvent event: UIEvent?) {
         if disableTapToDismiss {
-            super.touchesBegan(touches, withEvent: event)
+            super.touchesBegan(touches!, withEvent: event)
             return
         }
         
